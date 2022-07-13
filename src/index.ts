@@ -19,13 +19,15 @@ export type ExecWorkerOptions = {
   name?: string;
   cwd?: string;
   env?: string;
+  callbacks?: boolean;
   execPath?: string;
   sleep?: number;
 };
 
 export default function functionExecSync(options: ExecWorkerOptions, filePath: string /* arguments */): any {
   const args = Array.prototype.slice.call(arguments, 2);
-  const workerData = { filePath, args, env: options.env ?? process.env, cwd: options.cwd ?? process.cwd() };
+  const callback = options.callbacks ? args.pop() : null;
+  const workerData = { filePath, args, callbacks: options.callbacks || false, env: options.env ?? process.env, cwd: options.cwd ?? process.cwd() };
 
   const name = options.name ?? 'exec-worker-sync';
   const temp = path.join(tmpdir(), name, shortHash(workerData.cwd));
@@ -68,7 +70,10 @@ export default function functionExecSync(options: ExecWorkerOptions, filePath: s
   if (res.error) {
     const err = new Error(res.error.message);
     if (res.error.stack) err.stack = res.error.stack;
-    throw err;
+    if (!callback) throw err;
+    callback(err)
   }
-  return res.value;
+  // return the result
+  if (!callback) return res.value;
+  callback(null, res.value)  
 }

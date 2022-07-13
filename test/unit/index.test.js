@@ -7,7 +7,28 @@ const path = require('path');
 const DATA = path.resolve(__dirname, '..', 'data');
 
 describe('function-exec-sync', function () {
-  describe('teest cases', function () {
+  describe('test cases', function () {
+    it('callback', function (done) {
+      this.timeout(20000);
+      const fnPath = path.join(DATA, 'callback.js');
+      call({callbacks: true}, fnPath, 101, function(err, result) {
+        assert.ok(!err);
+        assert.equal(result, 101);
+        done();
+      });
+    });
+
+    it('callback error', function (done) {
+      this.timeout(20000);
+      const fnPath = path.join(DATA, 'callbackError.js');
+      call({callbacks: true}, fnPath, 101, function(err, result) {
+        assert.ok(err);
+        assert.equal(err.message, 'boom');
+        assert.equal(result, undefined);
+        done();
+      });
+    });
+
     it('no export', function () {
       this.timeout(20000);
       const fnPath = path.join(DATA, 'noExport.js');

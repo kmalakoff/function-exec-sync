@@ -12,7 +12,6 @@ describe('function-exec-sync', function () {
       this.timeout(20000);
       const fnPath = path.join(DATA, 'noExport.js');
       const result = call({}, fnPath);
-      assert.equal(result, undefined);
       assert.equal(keys(result).length, 0);
     });
 

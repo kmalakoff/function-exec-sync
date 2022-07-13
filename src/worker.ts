@@ -25,7 +25,7 @@ try {
 
   // call function
   const fn = require(workerData.filePath);
-  const value = typeof fn == 'function' ? fn.apply(null, workerData.args) : undefined;
+  const value = typeof fn == 'function' ? fn.apply(null, workerData.args) : fn;
   writeResult({ value });
 } catch (err) {
   writeResult({ error: { message: err.message, stack: err.stack } });

@@ -5,10 +5,12 @@ Object.defineProperty(exports, "__esModule", {
 module.exports = functionExecSync;
 function functionExecSync(options, filePath /* arguments */ ) {
     var args = Array.prototype.slice.call(arguments, 2);
+    var callback = options.callbacks ? args.pop() : null;
     var _env, _cwd;
     var workerData = {
         filePath: filePath,
         args: args,
+        callbacks: options.callbacks || false,
         env: (_env = options.env) !== null && _env !== void 0 ? _env : process.env,
         cwd: (_cwd = options.cwd) !== null && _cwd !== void 0 ? _cwd : process.cwd()
     };
@@ -52,9 +54,12 @@ function functionExecSync(options, filePath /* arguments */ ) {
     if (res.error) {
         var err = new Error(res.error.message);
         if (res.error.stack) err.stack = res.error.stack;
-        throw err;
+        if (!callback) throw err;
+        callback(err);
     }
-    return res.value;
+    // return the result
+    if (!callback) return res.value;
+    callback(null, res.value);
 }
 require("./polyfills.js");
 var fs = require("fs");

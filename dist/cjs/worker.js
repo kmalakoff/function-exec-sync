@@ -2,6 +2,7 @@
 require("./polyfills");
 var fs = require("fs");
 var serialize = require("serialize-javascript");
+var compat = require("async-compat");
 var input = process.argv[2];
 var output = process.argv[3];
 function writeResult(result) {
@@ -21,10 +22,27 @@ try {
     }
     // call function
     var fn = require(workerData.filePath);
-    var value = typeof fn == "function" ? fn.apply(null, workerData.args) : undefined;
-    writeResult({
-        value: value
-    });
+    if (typeof fn !== "function") {
+        writeResult({
+            value: fn
+        });
+    } else {
+        var args = [
+            fn,
+            workerData.callbacks
+        ].concat(workerData.args);
+        args.push(function(err, value) {
+            err ? writeResult({
+                error: {
+                    message: err.message,
+                    stack: err.stack
+                }
+            }) : writeResult({
+                value: value
+            });
+        });
+        compat.asyncFunction.apply(null, args);
+    }
 } catch (err) {
     writeResult({
         error: {

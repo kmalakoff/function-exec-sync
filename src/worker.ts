@@ -28,13 +28,12 @@ try {
   const fn = require(workerData.filePath);
   if (typeof fn !== 'function') {
     writeResult({ value: fn });
-  }
-  else {
+  } else {
     const args = [fn, workerData.callbacks].concat(workerData.args);
     args.push((err, value) => {
-      err ? writeResult({ error: { message: err.message, stack: err.stack } }) : writeResult({value});
-    })
-    compat.asyncFunction.apply(null, args);  
+      err ? writeResult({ error: { message: err.message, stack: err.stack } }) : writeResult({ value });
+    });
+    compat.asyncFunction.apply(null, args);
   }
 } catch (err) {
   writeResult({ error: { message: err.message, stack: err.stack } });

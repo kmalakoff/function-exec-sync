@@ -1,0 +1,10 @@
+{
+  "extends": "./node_modules/ts-dev-stack/.eslintrc.json",
+  "rules": {
+    "@typescript-eslint/no-explicit-any": "off",
+    "prefer-spread": "off",
+    "mocha/no-exclusive-tests": "off",
+    "mocha/no-setup-in-describe": "off",
+    "prefer-rest-params": "off"
+  }
+}

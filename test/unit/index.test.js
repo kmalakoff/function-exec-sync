@@ -8,25 +8,22 @@ const DATA = path.resolve(__dirname, '..', 'data');
 
 describe('function-exec-sync', function () {
   describe('test cases', function () {
-    it('callback', function (done) {
+    it('callback', function () {
       this.timeout(20000);
       const fnPath = path.join(DATA, 'callback.js');
-      call({callbacks: true}, fnPath, 101, function(err, result) {
-        assert.ok(!err);
-        assert.equal(result, 101);
-        done();
-      });
+      const result = call({ callbacks: true }, fnPath, 101);
+      assert.equal(result, 101);
     });
 
-    it('callback error', function (done) {
+    it('callback error', function () {
       this.timeout(20000);
       const fnPath = path.join(DATA, 'callbackError.js');
-      call({callbacks: true}, fnPath, 101, function(err, result) {
-        assert.ok(err);
+      try {
+        call({ callbacks: true }, fnPath, 101);
+        assert.ok(false);
+      } catch (err) {
         assert.equal(err.message, 'boom');
-        assert.equal(result, undefined);
-        done();
-      });
+      }
     });
 
     it('no export', function () {
@@ -41,6 +38,24 @@ describe('function-exec-sync', function () {
       const fnPath = path.join(DATA, 'processVersion.js');
       const result = call({}, fnPath);
       assert.equal(result, process.version);
+    });
+
+    it('promise', function () {
+      this.timeout(20000);
+      const fnPath = path.join(DATA, 'promise.js');
+      const result = call({}, fnPath, 101);
+      assert.equal(result, 101);
+    });
+
+    it('promise error', function () {
+      this.timeout(20000);
+      const fnPath = path.join(DATA, 'promiseError.js');
+      try {
+        call({}, fnPath, 101);
+        assert.ok(false);
+      } catch (err) {
+        assert.equal(err.message, 'boom');
+      }
     });
 
     it('return arguments', function () {

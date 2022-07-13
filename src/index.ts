@@ -26,7 +26,6 @@ export type ExecWorkerOptions = {
 
 export default function functionExecSync(options: ExecWorkerOptions, filePath: string /* arguments */): any {
   const args = Array.prototype.slice.call(arguments, 2);
-  const callback = options.callbacks ? args.pop() : null;
   const workerData = { filePath, args, callbacks: options.callbacks || false, env: options.env ?? process.env, cwd: options.cwd ?? process.cwd() };
 
   const name = options.name ?? 'exec-worker-sync';
@@ -70,10 +69,8 @@ export default function functionExecSync(options: ExecWorkerOptions, filePath: s
   if (res.error) {
     const err = new Error(res.error.message);
     if (res.error.stack) err.stack = res.error.stack;
-    if (!callback) throw err;
-    callback(err)
+    throw err;
   }
   // return the result
-  if (!callback) return res.value;
-  callback(null, res.value)  
+  return res.value;
 }

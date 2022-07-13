@@ -1,3 +1,5 @@
 module.exports = function (_value, cb) {
-  cb(new Error('boom'));
+  var error = new Error('boom');
+  error.custom = true;
+  cb(error);
 };

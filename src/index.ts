@@ -67,9 +67,9 @@ export default function functionExecSync(options: ExecWorkerOptions, filePath: s
 
   // throw error from the worker
   if (res.error) {
-    const err = new Error(res.error.message);
-    if (res.error.stack) err.stack = res.error.stack;
-    throw err;
+    const error = new Error(res.error.message);
+    for (const key in res.error) error[key] = res.error[key];
+    throw error;
   }
   // return the result
   return res.value;

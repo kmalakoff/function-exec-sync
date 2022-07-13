@@ -23,6 +23,7 @@ describe('function-exec-sync', function () {
         assert.ok(false);
       } catch (err) {
         assert.equal(err.message, 'boom');
+        assert.equal(err.custom, true);
       }
     });
 

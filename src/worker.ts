@@ -14,6 +14,12 @@ function writeResult(result) {
   });
 }
 
+function writeError(error) {
+  const result = { error: { message: error.message, stack: error.stack } };
+  for (const key in error) result.error[key] = error[key];
+  writeResult(result);
+}
+
 // get data
 try {
   const workerData = eval(`(${fs.readFileSync(input, 'utf8')})`);
@@ -31,10 +37,10 @@ try {
   } else {
     const args = [fn, workerData.callbacks].concat(workerData.args);
     args.push((err, value) => {
-      err ? writeResult({ error: { message: err.message, stack: err.stack } }) : writeResult({ value });
+      err ? writeError(err) : writeResult({ value });
     });
     compat.asyncFunction.apply(null, args);
   }
 } catch (err) {
-  writeResult({ error: { message: err.message, stack: err.stack } });
+  writeError(err);
 }

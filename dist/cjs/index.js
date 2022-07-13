@@ -51,9 +51,9 @@ function functionExecSync(options, filePath /* arguments */ ) {
     unlinkSafe(output);
     // throw error from the worker
     if (res.error) {
-        var err = new Error(res.error.message);
-        if (res.error.stack) err.stack = res.error.stack;
-        throw err;
+        var error = new Error(res.error.message);
+        for(var key in res.error)error[key] = res.error[key];
+        throw error;
     }
     // return the result
     return res.value;

@@ -12,6 +12,16 @@ function writeResult(result) {
         });
     });
 }
+function writeError(error) {
+    var result = {
+        error: {
+            message: error.message,
+            stack: error.stack
+        }
+    };
+    for(var key in error)result.error[key] = error[key];
+    writeResult(result);
+}
 // get data
 try {
     var workerData = eval("(".concat(fs.readFileSync(input, "utf8"), ")"));
@@ -32,22 +42,12 @@ try {
             workerData.callbacks
         ].concat(workerData.args);
         args.push(function(err, value) {
-            err ? writeResult({
-                error: {
-                    message: err.message,
-                    stack: err.stack
-                }
-            }) : writeResult({
+            err ? writeError(err) : writeResult({
                 value: value
             });
         });
         compat.asyncFunction.apply(null, args);
     }
 } catch (err) {
-    writeResult({
-        error: {
-            message: err.message,
-            stack: err.stack
-        }
-    });
+    writeError(err);
 }

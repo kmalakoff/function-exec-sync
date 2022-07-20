@@ -6,10 +6,8 @@ var compat = require("async-compat");
 var input = process.argv[2];
 var output = process.argv[3];
 function writeResult(result) {
-    fs.writeFile(output + ".tmp", serialize(result), "utf8", function() {
-        fs.rename(output + ".tmp", output, function() {
-            process.exit(0);
-        });
+    fs.writeFile(output, serialize(result), "utf8", function() {
+        process.exit(0);
     });
 }
 function writeError(error) {

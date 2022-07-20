@@ -18,6 +18,7 @@ function functionExecSync(options, filePath /* arguments */ ) {
     var temp = path.join(tmpdir(), name, shortHash(workerData.cwd));
     var input = path.join(temp, suffix("input"));
     var output = path.join(temp, suffix("output"));
+    var done = path.join(temp, suffix("done"));
     // store data to a file
     mkdirp.sync(path.dirname(input));
     fs.writeFileSync(input, serialize(workerData), "utf8");
@@ -27,15 +28,14 @@ function functionExecSync(options, filePath /* arguments */ ) {
     var worker = path.join(__dirname, "worker.js");
     // only node
     if (ALLOWED_EXEC_PATH.indexOf(path.basename(execPath).toLowerCase()) < 0) throw new Error("Expecting node executable. Received: ".concat(path.basename(execPath)));
-    // use polling
+    // exec and start polling
     if (!cp.execFileSync) {
-        // make sure the file exists
-        if (execPath !== process.execPath) require("fs-access-sync-compat")(execPath);
         var _sleep;
-        // exec and start polling
         var sleepMS = (_sleep = options.sleep) !== null && _sleep !== void 0 ? _sleep : DEFAULT_SLEEP_MS;
-        cp.exec('"'.concat(execPath, '" "').concat(worker, '" "').concat(input, '" "').concat(output, '"'));
-        while(!fs.existsSync(output)){
+        var cmd = '"'.concat(execPath, '" "').concat(worker, '" "').concat(input, '" "').concat(output, '"');
+        cmd += "".concat(isWindows ? "&" : ";", ' echo "done" > ').concat(done);
+        cp.exec(cmd);
+        while(!fs.existsSync(done)){
             sleep(sleepMS);
         }
     } else {
@@ -45,10 +45,16 @@ function functionExecSync(options, filePath /* arguments */ ) {
             output
         ]);
     }
-    // get data and clean up
-    var res = eval("(".concat(fs.readFileSync(output, "utf8"), ")"));
     unlinkSafe(input);
-    unlinkSafe(output);
+    unlinkSafe(done);
+    // get data and clean up
+    var res;
+    try {
+        res = eval("(".concat(fs.readFileSync(output, "utf8"), ")"));
+        unlinkSafe(output);
+    } catch (err) {
+        throw new Error("Output not found. Check the executable exists at: ".concat(execPath));
+    }
     // throw error from the worker
     if (res.error) {
         var error = new Error(res.error.message);
@@ -74,5 +80,6 @@ var ALLOWED_EXEC_PATH = [
     "node.exe",
     "node.cmd"
 ];
+var isWindows = process.platform === "win32";
 // @ts-ignore
 var unlinkSafe = require("./unlinkSafe.js");

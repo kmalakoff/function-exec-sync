@@ -11,6 +11,7 @@ const sleep = require('thread-sleep-compat');
 
 const DEFAULT_SLEEP_MS = 100;
 const ALLOWED_EXEC_PATH = ['node', 'node.exe', 'node.cmd'];
+const isWindows = process.platform === 'win32';
 
 // @ts-ignore
 const unlinkSafe = require('./unlinkSafe.ts');
@@ -32,6 +33,7 @@ export default function functionExecSync(options: ExecWorkerOptions, filePath: s
   const temp = path.join(tmpdir(), name, shortHash(workerData.cwd));
   const input = path.join(temp, suffix('input'));
   const output = path.join(temp, suffix('output'));
+  const done = path.join(temp, suffix('done'));
 
   // store data to a file
   mkdirp.sync(path.dirname(input));
@@ -45,25 +47,29 @@ export default function functionExecSync(options: ExecWorkerOptions, filePath: s
   // only node
   if (ALLOWED_EXEC_PATH.indexOf(path.basename(execPath).toLowerCase()) < 0) throw new Error(`Expecting node executable. Received: ${path.basename(execPath)}`);
 
-  // use polling
+  // exec and start polling
   if (!cp.execFileSync) {
-    // make sure the file exists
-    if (execPath !== process.execPath) require('fs-access-sync-compat')(execPath);
-
-    // exec and start polling
     const sleepMS = options.sleep ?? DEFAULT_SLEEP_MS;
-    cp.exec(`"${execPath}" "${worker}" "${input}" "${output}"`);
-    while (!fs.existsSync(output)) {
+    let cmd = `"${execPath}" "${worker}" "${input}" "${output}"`;
+    cmd += `${isWindows ? '&' : ';'} echo "done" > ${done}`;
+    cp.exec(cmd);
+    while (!fs.existsSync(done)) {
       sleep(sleepMS);
     }
   } else {
     cp.execFileSync(execPath, [worker, input, output]);
   }
+  unlinkSafe(input);
+  unlinkSafe(done);
 
   // get data and clean up
-  const res = eval(`(${fs.readFileSync(output, 'utf8')})`);
-  unlinkSafe(input);
-  unlinkSafe(output);
+  let res;
+  try {
+    res = eval(`(${fs.readFileSync(output, 'utf8')})`);    
+    unlinkSafe(output);
+  } catch(err) {
+    throw new Error(`Output not found. Check the executable exists at: ${execPath}`)    
+  }
 
   // throw error from the worker
   if (res.error) {

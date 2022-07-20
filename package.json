@@ -1,7 +1,7 @@
 {
   "name": "function-exec-sync",
   "description": "Run a function in a node process",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "author": {
     "email": "kmalakoff@gmail.com",
     "name": "Kevin Malakoff",
@@ -55,9 +55,7 @@
   "dependencies": {
     "async-compat": "^1.4.6",
     "core-js": "^3.23.5",
-    "fs-access-sync-compat": "^1.0.1",
     "mkdirp": "^0.5.6",
-    "node-version-use": "^0.3.0",
     "os-shim": "^0.1.3",
     "serialize-javascript": "^6.0.0",
     "short-hash": "^1.0.0",

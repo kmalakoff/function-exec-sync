@@ -65,10 +65,10 @@ export default function functionExecSync(options: ExecWorkerOptions, filePath: s
   // get data and clean up
   let res;
   try {
-    res = eval(`(${fs.readFileSync(output, 'utf8')})`);    
+    res = eval(`(${fs.readFileSync(output, 'utf8')})`);
     unlinkSafe(output);
-  } catch(err) {
-    throw new Error(`Output not found. Check the executable exists at: ${execPath}`)    
+  } catch (err) {
+    throw new Error(`Output not found. Check the executable exists at: ${execPath}`);
   }
 
   // throw error from the worker

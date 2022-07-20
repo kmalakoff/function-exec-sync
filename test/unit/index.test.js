@@ -117,11 +117,22 @@ describe('function-exec-sync', function () {
       assert.equal(result, path.dirname(__dirname));
     });
 
-    it('execPath', function () {
+    it('execPath invalid format', function () {
       this.timeout(20000);
       const fnPath = path.join(DATA, 'returnCwd.js');
       try {
         call({ execPath: 'hsadjhadkjhsda' }, fnPath);
+        assert.ok(false);
+      } catch (err) {
+        assert.ok(err);
+      }
+    });
+
+    it('execPath fake path', function () {
+      this.timeout(20000);
+      const fnPath = path.join(DATA, 'returnCwd.js');
+      try {
+        call({ execPath: '/fake/path/node' }, fnPath);
         assert.ok(false);
       } catch (err) {
         assert.ok(err);

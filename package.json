@@ -18,7 +18,7 @@
     "format": "tsds format",
     "lint": "tsds lint",
     "test": "tsds test:node",
-    "test:engines": "tsds test:engines",
+    "test:engines": "nvu engines tsds test:node",
     "version": "tsds version"
   },
   "homepage": "https://github.com/function-exec-sync#README.md",

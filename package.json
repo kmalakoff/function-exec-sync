@@ -48,6 +48,7 @@
     "thread-sleep-compat": "^0.0.1"
   },
   "devDependencies": {
+    "@types/mocha": "^9.1.1",
     "@types/node": "^18.0.6",
     "lodash.keys": "^4.2.0",
     "pinkie-promise": "^2.0.1",

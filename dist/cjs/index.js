@@ -2,7 +2,31 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-module.exports = functionExecSync;
+Object.defineProperty(exports, "default", {
+    enumerable: true,
+    get: function() {
+        return functionExecSync;
+    }
+});
+require("./polyfills.js");
+var fs = require("fs");
+var path = require("path");
+var cp = require("child_process");
+var tmpdir = require("os").tmpdir || require("os-shim").tmpdir;
+var suffix = require("temp-suffix");
+var serialize = require("serialize-javascript");
+var mkdirp = require("mkdirp");
+var shortHash = require("short-hash");
+var sleep = require("thread-sleep-compat");
+var DEFAULT_SLEEP_MS = 100;
+var ALLOWED_EXEC_PATH = [
+    "node",
+    "node.exe",
+    "node.cmd"
+];
+var isWindows = process.platform === "win32";
+// @ts-ignore
+var unlinkSafe = require("./unlinkSafe.js");
 function functionExecSync(options, filePath /* arguments */ ) {
     var args = Array.prototype.slice.call(arguments, 2);
     var _env, _cwd;
@@ -64,22 +88,9 @@ function functionExecSync(options, filePath /* arguments */ ) {
     // return the result
     return res.value;
 }
-require("./polyfills.js");
-var fs = require("fs");
-var path = require("path");
-var cp = require("child_process");
-var tmpdir = require("os").tmpdir || require("os-shim").tmpdir;
-var suffix = require("temp-suffix");
-var serialize = require("serialize-javascript");
-var mkdirp = require("mkdirp");
-var shortHash = require("short-hash");
-var sleep = require("thread-sleep-compat");
-var DEFAULT_SLEEP_MS = 100;
-var ALLOWED_EXEC_PATH = [
-    "node",
-    "node.exe",
-    "node.cmd"
-];
-var isWindows = process.platform === "win32";
-// @ts-ignore
-var unlinkSafe = require("./unlinkSafe.js");
+
+if ((typeof exports.default === 'function' || (typeof exports.default === 'object' && exports.default !== null)) && typeof exports.default.__esModule === 'undefined') {
+  Object.defineProperty(exports.default, '__esModule', { value: true });
+  for (var key in exports) exports.default[key] = exports[key];
+  module.exports = exports.default;
+}

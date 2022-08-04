@@ -77,7 +77,7 @@ function functionExecSync(options, filePath /* arguments */ ) {
         res = eval("(".concat(fs.readFileSync(output, "utf8"), ")"));
         unlinkSafe(output);
     } catch (err) {
-        throw new Error("Output not found. Check the executable exists at: ".concat(execPath));
+        throw new Error("Output not found. Check the executable exists at: ".concat(execPath, ". Error: ").concat(err.message));
     }
     // throw error from the worker
     if (res.error) {

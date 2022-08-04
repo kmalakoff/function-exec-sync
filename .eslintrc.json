@@ -1,5 +1,8 @@
 {
-  "extends": "./node_modules/ts-dev-stack/.eslintrc.json",
+  "extends": "./node_modules/ts-dev-stack/config/.eslintrc.json",
+  "env": {
+    "node": true
+  },
   "rules": {
     "@typescript-eslint/no-explicit-any": "off",
     "prefer-spread": "off",

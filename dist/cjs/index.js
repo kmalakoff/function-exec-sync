@@ -77,7 +77,7 @@ function functionExecSync(options, filePath /* arguments */ ) {
         res = eval("(".concat(fs.readFileSync(output, "utf8"), ")"));
         unlinkSafe(output);
     } catch (err) {
-        throw new Error("Output not found. Function: ".concat(filePath, ". Exec path: ").concat(execPath));
+        throw new Error("function-exec-sync: Error: ".concat(err.message, ". Function: ").concat(filePath, ". Exec path: ").concat(execPath));
     }
     // throw error from the worker
     if (res.error) {

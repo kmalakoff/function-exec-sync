@@ -1,6 +1,6 @@
 {
   "name": "function-exec-sync",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "description": "Run a function in a node process",
   "keywords": [
     "function",

@@ -19,7 +19,7 @@ var mkdirp = require("mkdirp");
 var shortHash = require("short-hash");
 var sleep = require("thread-sleep-compat");
 var DEFAULT_SLEEP_MS = 100;
-var ALLOWED_EXEC_PATH = [
+var NODES = [
     "node",
     "node.exe",
     "node.cmd"
@@ -51,7 +51,7 @@ function functionExecSync(options, filePath /* arguments */ ) {
     var execPath = options.execPath || process.execPath;
     var worker = path.join(__dirname, "worker.js");
     // only node
-    if (ALLOWED_EXEC_PATH.indexOf(path.basename(execPath).toLowerCase()) < 0) throw new Error("Expecting node executable. Received: ".concat(path.basename(execPath)));
+    if (NODES.indexOf(path.basename(execPath).toLowerCase()) < 0) throw new Error("Expecting node executable. Received: ".concat(path.basename(execPath)));
     // exec and start polling
     if (!cp.execFileSync) {
         var _sleep;

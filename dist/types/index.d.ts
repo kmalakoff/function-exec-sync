@@ -1,7 +1,7 @@
 export declare type ExecWorkerOptions = {
     name?: string;
     cwd?: string;
-    env?: string;
+    env?: object;
     callbacks?: boolean;
     execPath?: string;
     sleep?: number;

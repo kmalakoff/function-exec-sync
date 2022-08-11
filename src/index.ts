@@ -10,7 +10,7 @@ const shortHash = require('short-hash');
 const sleep = require('thread-sleep-compat');
 
 const DEFAULT_SLEEP_MS = 100;
-const ALLOWED_EXEC_PATH = ['node', 'node.exe', 'node.cmd'];
+const NODES = ['node', 'node.exe', 'node.cmd'];
 const isWindows = process.platform === 'win32';
 
 // @ts-ignore
@@ -19,7 +19,7 @@ const unlinkSafe = require('./unlinkSafe.ts');
 export type ExecWorkerOptions = {
   name?: string;
   cwd?: string;
-  env?: string;
+  env?: object;
   callbacks?: boolean;
   execPath?: string;
   sleep?: number;
@@ -45,7 +45,7 @@ export default function functionExecSync(options: ExecWorkerOptions, filePath: s
   const worker = path.join(__dirname, 'worker.js');
 
   // only node
-  if (ALLOWED_EXEC_PATH.indexOf(path.basename(execPath).toLowerCase()) < 0) throw new Error(`Expecting node executable. Received: ${path.basename(execPath)}`);
+  if (NODES.indexOf(path.basename(execPath).toLowerCase()) < 0) throw new Error(`Expecting node executable. Received: ${path.basename(execPath)}`);
 
   // exec and start polling
   if (!cp.execFileSync) {

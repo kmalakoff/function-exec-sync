@@ -1,3 +1,1 @@
-module.exports = function () {
-  return process.version;
-};
+module.exports = () => process.version;

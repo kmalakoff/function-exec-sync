@@ -25,9 +25,16 @@ export type ExecWorkerOptions = {
   sleep?: number;
 };
 
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 export default function functionExecSync(options: ExecWorkerOptions, filePath: string /* arguments */): any {
   const args = Array.prototype.slice.call(arguments, 2);
-  const workerData = { filePath, args, callbacks: options.callbacks || false, env: options.env ?? process.env, cwd: options.cwd ?? process.cwd() };
+  const workerData = {
+    filePath,
+    args,
+    callbacks: options.callbacks || false,
+    env: options.env ?? process.env,
+    cwd: options.cwd ?? process.cwd(),
+  };
 
   const name = options.name ?? 'exec-worker-sync';
   const temp = path.join(tmpdir(), name, shortHash(workerData.cwd));
@@ -63,7 +70,8 @@ export default function functionExecSync(options: ExecWorkerOptions, filePath: s
   unlinkSafe(done);
 
   // get data and clean up
-  let res;
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  let res: { error: { [x: string]: any; message: string }; value: any };
   try {
     res = eval(`(${fs.readFileSync(output, 'utf8')})`);
     unlinkSafe(output);

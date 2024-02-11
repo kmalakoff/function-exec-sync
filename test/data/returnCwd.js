@@ -1,1 +1,3 @@
-module.exports = () => process.cwd();
+module.exports = function () {
+  return process.cwd();
+};

@@ -7,7 +7,7 @@ const input = process.argv[2];
 const output = process.argv[3];
 
 function writeResult(result) {
-  fs.writeFile(output, serialize(result), 'utf8', function () {
+  fs.writeFile(output, serialize(result), 'utf8', () => {
     process.exit(0);
   });
 }

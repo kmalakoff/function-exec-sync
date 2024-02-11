@@ -1,4 +1,9 @@
 {
   "extends": "./node_modules/ts-dev-stack/config/.depcheckrc.json",
-  "ignores": ["function-exec-sync", "@types/*", "@typescript-eslint/*", "eslint-*"]
+  "ignores": [
+    "function-exec-sync",
+    "@types/*",
+    "@typescript-eslint/*",
+    "eslint-*"
+  ]
 }

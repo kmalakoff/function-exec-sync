@@ -1,1 +1,3 @@
-module.exports = () => Array.prototype.slice.call(arguments, 0);
+module.exports = function () {
+  return Array.prototype.slice.call(arguments, 0);
+};

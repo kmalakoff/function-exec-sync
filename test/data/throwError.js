@@ -1,3 +1,3 @@
-module.exports = () => {
+module.exports = function () {
   throw new Error('boom');
 };

@@ -1,3 +1,3 @@
-module.exports = (value, cb) => {
+module.exports = function (value, cb) {
   cb(null, value);
 };

@@ -1,4 +1,4 @@
-export declare type ExecWorkerOptions = {
+export type ExecWorkerOptions = {
     name?: string;
     cwd?: string;
     env?: object;

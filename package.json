@@ -52,13 +52,13 @@
     "@types/node": "^20.11.17",
     "lodash.keys": "^4.2.0",
     "pinkie-promise": "^2.0.1",
-    "ts-dev-stack": "^0.9.1"
+    "ts-dev-stack": "^0.9.3"
   },
   "engines": {
     "node": ">=0.8"
   },
   "tsds": {
-    "source": "src/index.ts",
+    "source": "src/index.js",
     "targets": [
       "cjs"
     ]

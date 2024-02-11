@@ -9,14 +9,14 @@ const DATA = path.resolve(__dirname, '..', 'data');
 describe('function-exec-sync', function () {
   this.timeout(60000);
 
-  describe('test cases', () => {
-    it('callback', () => {
+  describe('test cases', function () {
+    it('callback', function () {
       const fnPath = path.join(DATA, 'callback.js');
       const result = call({ callbacks: true }, fnPath, 101);
       assert.equal(result, 101);
     });
 
-    it('callback error', () => {
+    it('callback error', function () {
       const fnPath = path.join(DATA, 'callbackError.js');
       try {
         call({ callbacks: true }, fnPath, 101);
@@ -27,25 +27,25 @@ describe('function-exec-sync', function () {
       }
     });
 
-    it('no export', () => {
+    it('no export', function () {
       const fnPath = path.join(DATA, 'noExport.js');
       const result = call({}, fnPath);
       assert.equal(keys(result).length, 0);
     });
 
-    it('process result', () => {
+    it('process result', function () {
       const fnPath = path.join(DATA, 'processVersion.js');
       const result = call({}, fnPath);
       assert.equal(result, process.version);
     });
 
-    it('promise', () => {
+    it('promise', function () {
       const fnPath = path.join(DATA, 'promise.js');
       const result = call({}, fnPath, 101);
       assert.equal(result, 101);
     });
 
-    it('promise error', () => {
+    it('promise error', function () {
       const fnPath = path.join(DATA, 'promiseError.js');
       try {
         call({}, fnPath, 101);
@@ -55,7 +55,7 @@ describe('function-exec-sync', function () {
       }
     });
 
-    it('return arguments', () => {
+    it('return arguments', function () {
       const args = [
         { field2: 1 },
         1,
@@ -71,7 +71,7 @@ describe('function-exec-sync', function () {
       assert.equal(JSON.stringify(result), JSON.stringify(args));
     });
 
-    it('throw error', () => {
+    it('throw error', function () {
       const fnPath = path.join(DATA, 'throwError.js');
       try {
         call({}, fnPath);
@@ -82,32 +82,32 @@ describe('function-exec-sync', function () {
     });
   });
 
-  describe('options', () => {
-    it('return cwd', () => {
+  describe('options', function () {
+    it('return cwd', function () {
       const fnPath = path.join(DATA, 'returnCwd.js');
       const result = call({ cwd: path.dirname(__dirname) }, fnPath);
       assert.equal(result, path.dirname(__dirname));
     });
 
-    it('return env', () => {
+    it('return env', function () {
       const fnPath = path.join(DATA, 'returnEnv.js');
       const result = call({ env: { hello: 'there' } }, fnPath);
       assert.equal(result.hello, 'there');
     });
 
-    it('return name', () => {
+    it('return name', function () {
       const fnPath = path.join(DATA, 'returnName.js');
       const result = call({ name: 'bob' }, fnPath);
       assert.equal(result, 'bob');
     });
 
-    it('long sleep', () => {
+    it('long sleep', function () {
       const fnPath = path.join(DATA, 'returnCwd.js');
       const result = call({ cwd: path.dirname(__dirname), sleep: 10 }, fnPath);
       assert.equal(result, path.dirname(__dirname));
     });
 
-    it('execPath invalid format', () => {
+    it('execPath invalid format', function () {
       const fnPath = path.join(DATA, 'returnCwd.js');
       try {
         call({ execPath: 'hsadjhadkjhsda' }, fnPath);
@@ -117,7 +117,7 @@ describe('function-exec-sync', function () {
       }
     });
 
-    it('execPath fake path', () => {
+    it('execPath fake path', function () {
       const fnPath = path.join(DATA, 'returnCwd.js');
       try {
         call({ execPath: '/fake/path/node' }, fnPath);

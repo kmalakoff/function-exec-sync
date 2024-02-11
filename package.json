@@ -1,8 +1,14 @@
 {
   "name": "function-exec-sync",
-  "version": "0.2.10",
+  "version": "0.2.11",
   "description": "Run a function in a node process",
-  "keywords": ["function", "exec", "sync", "execPath", "typescript"],
+  "keywords": [
+    "function",
+    "exec",
+    "sync",
+    "execPath",
+    "typescript"
+  ],
   "homepage": "https://github.com/function-exec-sync#README.md",
   "bugs": {
     "url": "https://github.com/function-exec-sync/issues"
@@ -19,7 +25,9 @@
   },
   "main": "dist/cjs/index.js",
   "types": "dist/types/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsds build",
     "deploy": "tsds deploy",
@@ -51,6 +59,8 @@
   },
   "tsds": {
     "source": "src/index.ts",
-    "targets": ["cjs"]
+    "targets": [
+      "cjs"
+    ]
   }
 }

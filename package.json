@@ -52,7 +52,7 @@
     "@types/node": "^20.11.19",
     "lodash.keys": "^4.2.0",
     "pinkie-promise": "^2.0.1",
-    "ts-dev-stack": "^0.11.5"
+    "ts-dev-stack": "^0.12.0"
   },
   "engines": {
     "node": ">=0.8"

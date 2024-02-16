@@ -1,8 +1,8 @@
 const assert = require('assert');
 const call = require('function-exec-sync');
 
-describe('exports .cjs', function () {
-  it('defaults', function () {
+describe('exports .cjs', () => {
+  it('defaults', () => {
     assert.equal(typeof call, 'function');
   });
 });

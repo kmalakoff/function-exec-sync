@@ -26,8 +26,7 @@ export type ExecWorkerOptions = {
 };
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-export default function functionExecSync(options: ExecWorkerOptions, filePath: string /* arguments */): any {
-  const args = Array.prototype.slice.call(arguments, 2);
+export default function functionExecSync(options: ExecWorkerOptions, filePath: string, ...args): any {
   const workerData = {
     filePath,
     args,

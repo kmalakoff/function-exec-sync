@@ -28,8 +28,10 @@ var NODES = [
 var isWindows = process.platform === "win32";
 // @ts-ignore
 var unlinkSafe = require("./unlinkSafe.js");
-function functionExecSync(options, filePath /* arguments */ ) {
-    var args = Array.prototype.slice.call(arguments, 2);
+function functionExecSync(options, filePath) {
+    for(var _len = arguments.length, args = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++){
+        args[_key - 2] = arguments[_key];
+    }
     var _options_env, _options_cwd;
     var workerData = {
         filePath: filePath,

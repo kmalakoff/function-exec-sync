@@ -26,10 +26,11 @@ var NODES = [
     "node.cmd"
 ];
 var isWindows = process.platform === "win32";
-// @ts-ignore
 var unlinkSafe = require("./unlinkSafe.js");
-function functionExecSync(options, filePath /* arguments */ ) {
-    var args = Array.prototype.slice.call(arguments, 2);
+function functionExecSync(options, filePath) {
+    for(var _len = arguments.length, args = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++){
+        args[_key - 2] = arguments[_key];
+    }
     var _options_env, _options_cwd;
     var workerData = {
         filePath: filePath,
@@ -90,9 +91,4 @@ function functionExecSync(options, filePath /* arguments */ ) {
     // return the result
     return res.value;
 }
-
-if ((typeof exports.default === 'function' || (typeof exports.default === 'object' && exports.default !== null)) && typeof exports.default.__esModule === 'undefined') {
-  Object.defineProperty(exports.default, '__esModule', { value: true });
-  for (var key in exports) exports.default[key] = exports[key];
-  module.exports = exports.default;
-}
+/* CJS INTEROP */ if (exports.__esModule && exports.default) { Object.defineProperty(exports.default, '__esModule', { value: true }); for (var key in exports) exports.default[key] = exports[key]; module.exports = exports.default; }

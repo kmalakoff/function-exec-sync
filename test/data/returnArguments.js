@@ -1,3 +1,3 @@
 module.exports = function () {
-  return Array.prototype.slice.call(arguments, 0);
+    return Array.prototype.slice.call(arguments, 0);
 };

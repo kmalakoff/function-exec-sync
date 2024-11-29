@@ -6,4 +6,4 @@ export type ExecWorkerOptions = {
     execPath?: string;
     sleep?: number;
 };
-export default function functionExecSync(options: ExecWorkerOptions, filePath: string): any;
+export default function functionExecSync(options: ExecWorkerOptions, filePath: string, ...args: any[]): any;

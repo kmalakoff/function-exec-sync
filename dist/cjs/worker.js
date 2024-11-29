@@ -1,12 +1,12 @@
 "use strict";
-require("./polyfills");
-var fs = require("fs");
-var serialize = require("serialize-javascript");
-var compat = require("async-compat");
+require('./polyfills');
+var fs = require('fs');
+var serialize = require('serialize-javascript');
+var compat = require('async-compat');
 var input = process.argv[2];
 var output = process.argv[3];
 function writeResult(result) {
-    fs.writeFile(output, serialize(result), "utf8", function() {
+    fs.writeFile(output, serialize(result), 'utf8', function() {
         process.exit(0);
     });
 }
@@ -22,7 +22,7 @@ function writeError(error) {
 }
 // get data
 try {
-    var workerData = eval("(".concat(fs.readFileSync(input, "utf8"), ")"));
+    var workerData = eval("(".concat(fs.readFileSync(input, 'utf8'), ")"));
     // set up env
     if (process.cwd() !== workerData.cwd) process.chdir(workerData.cwd);
     for(var key in workerData.env){
@@ -30,7 +30,7 @@ try {
     }
     // call function
     var fn = require(workerData.filePath);
-    if (typeof fn !== "function") {
+    if (typeof fn !== 'function') {
         writeResult({
             value: fn
         });
@@ -49,9 +49,4 @@ try {
 } catch (err) {
     writeError(err);
 }
-
-if ((typeof exports.default === 'function' || (typeof exports.default === 'object' && exports.default !== null)) && typeof exports.default.__esModule === 'undefined') {
-  Object.defineProperty(exports.default, '__esModule', { value: true });
-  for (var key in exports) exports.default[key] = exports[key];
-  module.exports = exports.default;
-}
+/* CJS INTEROP */ if (exports.__esModule && exports.default) { Object.defineProperty(exports.default, '__esModule', { value: true }); for (var key in exports) exports.default[key] = exports[key]; module.exports = exports.default; }

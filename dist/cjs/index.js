@@ -25,7 +25,7 @@ var NODES = [
     'node.exe',
     'node.cmd'
 ];
-var isWindows = process.platform === 'win32';
+var isWindows = process.platform === 'win32' || /^(msys|cygwin)$/.test(process.env.OSTYPE);
 var unlinkSafe = require('./unlinkSafe.js');
 function functionExecSync(options, filePath) {
     for(var _len = arguments.length, args = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++){

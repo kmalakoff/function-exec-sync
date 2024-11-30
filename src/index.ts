@@ -11,7 +11,7 @@ const sleep = require('thread-sleep-compat');
 
 const DEFAULT_SLEEP_MS = 100;
 const NODES = ['node', 'node.exe', 'node.cmd'];
-const isWindows = process.platform === 'win32';
+const isWindows = process.platform === 'win32' || /^(msys|cygwin)$/.test(process.env.OSTYPE);
 
 const unlinkSafe = require('./unlinkSafe.ts');
 

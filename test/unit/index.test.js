@@ -1,3 +1,7 @@
+// remove NODE_OPTIONS from ts-dev-stack
+// biome-ignore lint/performance/noDelete: <explanation>
+delete process.env.NODE_OPTIONS;
+
 const assert = require('assert');
 
 const call = require('function-exec-sync');

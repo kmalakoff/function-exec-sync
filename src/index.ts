@@ -7,7 +7,7 @@ const cp = require('child_process');
 const tmpdir = require('os').tmpdir || require('os-shim').tmpdir;
 const suffix = require('temp-suffix');
 const serialize = require('serialize-javascript');
-const mkdirp = require('mkdirp');
+const mkdirp = require('mkdirp-classic');
 const shortHash = require('short-hash');
 const sleep = require('thread-sleep-compat');
 
@@ -41,10 +41,10 @@ export default function functionExecSync(options: ExecWorkerOptions, filePath: s
     args,
     callbacks: options.callbacks || false,
     env,
-    cwd: options.cwd ?? process.cwd(),
+    cwd: options.cwd === undefined ? process.cwd() : options.cwd,
   };
 
-  const name = options.name ?? 'exec-worker-sync';
+  const name = options.name === undefined ? 'exec-worker-sync' : options.name;
   const temp = path.join(tmpdir(), name, shortHash(workerData.cwd));
   const input = path.join(temp, suffix('input'));
   const output = path.join(temp, suffix('output'));
@@ -64,7 +64,7 @@ export default function functionExecSync(options: ExecWorkerOptions, filePath: s
 
   // exec and start polling
   if (!cp.execFileSync) {
-    const sleepMS = options.sleep ?? DEFAULT_SLEEP_MS;
+    const sleepMS = options.sleep === undefined ? DEFAULT_SLEEP_MS : options.sleep;
     let cmd = `"${execPath}" "${worker}" "${input}" "${output}"`;
     cmd += `${isWindows ? '&' : ';'} echo "done" > ${done}`;
     cp.exec(cmd);

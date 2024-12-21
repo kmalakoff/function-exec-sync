@@ -4,8 +4,6 @@ updates:
     directory: "/"
     schedule:
       interval: weekly
-    ignore:
-      - dependency-name: "mkdirp"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

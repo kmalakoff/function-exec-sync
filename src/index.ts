@@ -1,3 +1,5 @@
+import { ProcessEnvOptions } from 'child_process';
+
 require('./polyfills.ts');
 const fs = require('fs');
 const path = require('path');
@@ -15,6 +17,10 @@ const isWindows = process.platform === 'win32' || /^(msys|cygwin)$/.test(process
 
 const unlinkSafe = require('./unlinkSafe.ts');
 
+export type Env = {
+  NODE_OPTIONS?: string;
+};
+
 export type ExecWorkerOptions = {
   name?: string;
   cwd?: string;
@@ -26,11 +32,15 @@ export type ExecWorkerOptions = {
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 export default function functionExecSync(options: ExecWorkerOptions, filePath: string, ...args): any {
+  const env = { ...(options.env || process.env) } as Env;
+  // biome-ignore lint/performance/noDelete: <explanation>
+  delete env.NODE_OPTIONS;
+
   const workerData = {
     filePath,
     args,
     callbacks: options.callbacks || false,
-    env: options.env ?? process.env,
+    env,
     cwd: options.cwd ?? process.cwd(),
   };
 

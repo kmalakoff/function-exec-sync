@@ -32,7 +32,7 @@
     "build": "tsds build",
     "deploy": "tsds deploy",
     "format": "biome check --write --unsafe src/ test/",
-    "test": "tsds test:node --timeout=10000",
+    "test": "tsds test:node --no-timeouts",
     "test:engines": "nvu engines npm run test",
     "version": "tsds version"
   },
@@ -49,10 +49,10 @@
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^22.10.1",
+    "@types/node": "^22.10.2",
+    "core-js": "^3.39.0",
     "lodash.keys": "^4.2.0",
-    "pinkie-promise": "^2.0.1",
-    "ts-dev-stack": "^0.17.0"
+    "ts-dev-stack": "^1.4.0"
   },
   "engines": {
     "node": ">=0.8"

@@ -52,7 +52,7 @@
     "@types/node": "^14.18.63",
     "core-js": "^3.39.0",
     "lodash.keys": "^4.2.0",
-    "ts-dev-stack": "^1.4.0"
+    "ts-dev-stack": "^1.4.1"
   },
   "engines": {
     "node": ">=0.8"

@@ -1,4 +1,4 @@
 {
   "upgrade": true,
-  "reject": ["mkdirp", "serialize-javascript"]
+  "reject": ["@types/node", "serialize-javascript"]
 }

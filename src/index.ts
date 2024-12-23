@@ -1,5 +1,3 @@
-import { ProcessEnvOptions } from 'child_process';
-
 require('./polyfills.ts');
 const fs = require('fs');
 const path = require('path');

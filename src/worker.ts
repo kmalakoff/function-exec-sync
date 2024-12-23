@@ -24,9 +24,7 @@ try {
 
   // set up env
   if (process.cwd() !== workerData.cwd) process.chdir(workerData.cwd);
-  for (const key in workerData.env) {
-    if (process.env[key] === undefined) process.env[key] = workerData.env[key];
-  }
+  for (const key in workerData.env) process.env[key] = workerData.env[key];
 
   // call function
   const fn = require(workerData.filePath);

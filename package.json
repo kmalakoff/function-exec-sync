@@ -37,8 +37,11 @@
     "version": "tsds version"
   },
   "dependencies": {
+    "array-from": "^2.1.1",
     "async-compat": "^1.4.7",
     "core-js": "^3.39.0",
+    "es6-map": "^0.1.5",
+    "es6-set": "^0.1.6",
     "mkdirp-classic": "^0.5.3",
     "os-shim": "^0.1.3",
     "serialize-javascript": "6.0.0",
@@ -50,9 +53,9 @@
     "@biomejs/biome": "^1.9.4",
     "@types/mocha": "^10.0.10",
     "@types/node": "^22.10.2",
-    "core-js": "^3.39.0",
     "lodash.keys": "^4.2.0",
-    "ts-dev-stack": "^1.4.6"
+    "pinkie-promise": "^2.0.1",
+    "ts-dev-stack": "^1.5.2"
   },
   "packageManager": "npm@11.0.0+sha512.11dff29565d2297c74e7c594a9762581bde969f0aa5cbe6f5b3644bf008a16c065ece61094d9ffbb81125be38df8e1ba43eb8244b3d30c61eb797e9a2440e3ec",
   "engines": {

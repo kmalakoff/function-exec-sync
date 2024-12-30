@@ -1,6 +1,7 @@
 require('./polyfills.ts');
 const fs = require('fs');
 const path = require('path');
+const url = require('url');
 const cp = require('child_process');
 const tmpdir = require('os').tmpdir || require('os-shim').tmpdir;
 const suffix = require('temp-suffix');
@@ -12,6 +13,8 @@ const sleep = require('thread-sleep-compat');
 const DEFAULT_SLEEP_MS = 100;
 const NODES = ['node', 'node.exe', 'node.cmd'];
 const isWindows = process.platform === 'win32' || /^(msys|cygwin)$/.test(process.env.OSTYPE);
+const __dirname = path.dirname(typeof __filename === 'undefined' ? url.fileURLToPath(import.meta.url) : __filename);
+const worker = path.join(__dirname, 'workers', 'runFunction.js');
 
 const unlinkSafe = require('./unlinkSafe.ts');
 
@@ -48,7 +51,6 @@ export default function functionExecSync(options: ExecWorkerOptions, filePath: s
 
   // call the function
   const execPath = options.execPath || process.execPath;
-  const worker = path.join(__dirname, 'worker.js');
 
   // only node
   if (NODES.indexOf(path.basename(execPath).toLowerCase()) < 0) throw new Error(`Expecting node executable. Received: ${path.basename(execPath)}`);

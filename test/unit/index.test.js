@@ -1,6 +1,3 @@
-// remove NODE_OPTIONS from ts-dev-stack
-delete process.env.NODE_OPTIONS;
-
 const assert = require('assert');
 
 const call = require('function-exec-sync');

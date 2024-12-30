@@ -29,26 +29,26 @@ describe('function-exec-sync', function () {
 
     it('no export', () => {
       const fnPath = path.join(DATA, 'noExport.js');
-      const result = call({}, fnPath);
+      const result = call(fnPath);
       assert.equal(keys(result).length, 0);
     });
 
     it('process result', () => {
       const fnPath = path.join(DATA, 'processVersion.js');
-      const result = call({}, fnPath);
+      const result = call(fnPath);
       assert.equal(result, process.version);
     });
 
     it('promise', () => {
       const fnPath = path.join(DATA, 'promise.js');
-      const result = call({}, fnPath, 101);
+      const result = call(fnPath, 101);
       assert.equal(result, 101);
     });
 
     it('promise error', () => {
       const fnPath = path.join(DATA, 'promiseError.js');
       try {
-        call({}, fnPath, 101);
+        call(fnPath, 101);
         assert.ok(false);
       } catch (err) {
         assert.equal(err.message, 'boom');
@@ -67,14 +67,14 @@ describe('function-exec-sync', function () {
         new Set(),
       ];
       const fnPath = path.join(DATA, 'returnArguments.js');
-      const result = call({}, fnPath, ...args);
+      const result = call(fnPath, ...args);
       assert.equal(JSON.stringify(result), JSON.stringify(args));
     });
 
     it('throw error', () => {
       const fnPath = path.join(DATA, 'throwError.js');
       try {
-        call({}, fnPath);
+        call(fnPath);
         assert.ok(false);
       } catch (err) {
         assert.equal(err.message, 'boom');

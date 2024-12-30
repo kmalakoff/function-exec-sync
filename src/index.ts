@@ -15,17 +15,18 @@ const isWindows = process.platform === 'win32' || /^(msys|cygwin)$/.test(process
 
 const unlinkSafe = require('./unlinkSafe.ts');
 
-export type ExecWorkerOptions = {
-  name?: string;
-  cwd?: string;
-  env?: object;
-  callbacks?: boolean;
-  execPath?: string;
-  sleep?: number;
-};
-
+import type { ExecWorkerOptions } from './types.js';
+export * from './types.js';
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 export default function functionExecSync(options: ExecWorkerOptions, filePath: string, ...args): any {
+  if (typeof options === 'string') {
+    args.unshift(filePath);
+    filePath = options;
+    options = null;
+  }
+  if (!filePath) throw new Error('function-exec-sync missing file');
+  options = options || {};
+
   const workerData = {
     filePath,
     args,

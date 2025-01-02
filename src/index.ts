@@ -14,12 +14,12 @@ const DEFAULT_SLEEP_MS = 100;
 const NODES = ['node', 'node.exe', 'node.cmd'];
 const isWindows = process.platform === 'win32' || /^(msys|cygwin)$/.test(process.env.OSTYPE);
 const __dirname = path.dirname(typeof __filename === 'undefined' ? url.fileURLToPath(import.meta.url) : __filename);
-const worker = path.join(__dirname, 'workers', 'runFunction.js');
+const worker = path.join(__dirname, 'workers', 'runFunction.cjs');
 
 const unlinkSafe = require('./unlinkSafe.ts');
 
-import type { ExecWorkerOptions } from './types.js';
-export * from './types.js';
+import type { ExecWorkerOptions } from './types';
+export type * from './types';
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 export default function functionExecSync(options: ExecWorkerOptions, filePath: string, ...args): any {
   if (typeof options === 'string') {
@@ -74,6 +74,7 @@ export default function functionExecSync(options: ExecWorkerOptions, filePath: s
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   let res: { error: { [x: string]: any; message: string }; value: any };
   try {
+    // biome-ignore lint/security/noGlobalEval: <explanation>
     res = eval(`(${fs.readFileSync(output, 'utf8')})`);
     unlinkSafe(output);
   } catch (err) {

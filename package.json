@@ -23,7 +23,7 @@
     "email": "kmalakoff@gmail.com",
     "url": "https://github.com/kmalakoff"
   },
-  "main": "dist/cjs/index.js",
+  "main": "dist/cjs/index.cjs",
   "types": "dist/types/index.d.ts",
   "files": [
     "dist"
@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "array-from": "^2.1.1",
-    "async-compat": "^1.4.7",
+    "async-compat": "^1.5.1",
     "core-js": "^3.39.0",
     "es6-map": "^0.1.5",
     "es6-set": "^0.1.6",
@@ -47,7 +47,7 @@
     "serialize-javascript": "6.0.0",
     "short-hash": "^1.0.0",
     "temp-suffix": "^0.1.1",
-    "thread-sleep-compat": "^0.1.1"
+    "thread-sleep-compat": "^0.2.2"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",

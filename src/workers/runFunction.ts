@@ -1,4 +1,4 @@
-require('../polyfills.js');
+require('../polyfills');
 const fs = require('fs');
 const serialize = require('serialize-javascript');
 const compat = require('async-compat');
@@ -20,6 +20,7 @@ function writeError(error) {
 
 // get data
 try {
+  // biome-ignore lint/security/noGlobalEval: <explanation>
   const workerData = eval(`(${fs.readFileSync(input, 'utf8')})`);
 
   // set up env

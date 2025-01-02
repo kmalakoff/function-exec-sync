@@ -1,5 +1,5 @@
-const Promise = require('pinkie-promise');
+const Pinkie = require('pinkie-promise');
 
 module.exports = function () {
-  return Promise.reject(new Error('boom'));
+  return Pinkie.reject(new Error('boom'));
 };

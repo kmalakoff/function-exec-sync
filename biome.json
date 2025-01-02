@@ -1,7 +1,7 @@
 {
   "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
   "files": {
-    "ignore": ["assets/**", "dist/**", "node_modules/**", "test/data/**"]
+    "ignore": ["test/data/**"]
   },
   "formatter": {
     "enabled": true,
@@ -25,9 +25,6 @@
       "correctness": {
         "noUnusedVariables": "warn",
         "noInnerDeclarations": "off"
-      },
-      "security": {
-        "noGlobalEval": "off"
       },
       "performance": {
         "noDelete": "off"

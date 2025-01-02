@@ -1,5 +1,5 @@
-const Promise = require('pinkie-promise');
+const Pinkie = require('pinkie-promise');
 
 module.exports = function (value) {
-  return Promise.resolve(value);
+  return Pinkie.resolve(value);
 };

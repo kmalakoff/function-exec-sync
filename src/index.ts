@@ -18,6 +18,15 @@ const worker = path.join(__dirname, 'workers', 'runFunction.cjs');
 
 const unlinkSafe = require('./unlinkSafe.ts');
 
+const existsSync = (test) => {
+  try {
+    (fs.accessSync || fs.statSync)(test);
+    return true;
+  } catch (_) {
+    return false;
+  }
+};
+
 import type { ExecWorkerOptions } from './types';
 export type * from './types';
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
@@ -61,7 +70,7 @@ export default function functionExecSync(options: ExecWorkerOptions, filePath: s
     let cmd = `"${execPath}" "${worker}" "${input}" "${output}"`;
     cmd += `${isWindows ? '&' : ';'} echo "done" > ${done}`;
     cp.exec(cmd);
-    while (!fs.existsSync(done)) {
+    while (!existsSync(done)) {
       sleep(sleepMS);
     }
   } else {

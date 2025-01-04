@@ -5,7 +5,7 @@ const call = require('function-exec-sync');
 const keys = require('lodash.keys');
 
 const path = require('path');
-const DATA = path.resolve(__dirname, '..', 'data');
+const DATA = path.join(__dirname, '..', 'data');
 
 describe('function-exec-sync', () => {
   describe('test cases', () => {

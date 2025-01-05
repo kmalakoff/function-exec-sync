@@ -29,8 +29,9 @@ const existsSync = (test) => {
 
 import type { ExecWorkerOptions } from './types';
 export type * from './types';
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-export default function functionExecSync(options: ExecWorkerOptions, filePath: string, ...args): any {
+export default function functionExecSync(options: ExecWorkerOptions, filePath: string): unknown {
+  // biome-ignore lint/style/noArguments: <explanation>
+  const args = Array.prototype.slice.call(arguments, 2);
   if (typeof options === 'string') {
     args.unshift(filePath);
     filePath = options;
@@ -39,15 +40,18 @@ export default function functionExecSync(options: ExecWorkerOptions, filePath: s
   if (!filePath) throw new Error('function-exec-sync missing file');
   options = options || {};
 
+  const env = { ...(options.env || process.env) };
+  // @ts-ignore
+  delete env.NODE_OPTIONS;
   const workerData = {
     filePath,
     args,
     callbacks: options.callbacks || false,
-    env: options.env || process.env,
+    env,
     cwd: options.cwd === undefined ? process.cwd() : options.cwd,
   };
 
-  const name = options.name === undefined ? 'exec-worker-sync' : options.name;
+  const name = options.name === undefined ? 'function-exec-sync' : options.name;
   const temp = path.join(tmpdir(), name, shortHash(workerData.cwd));
   const input = path.join(temp, suffix('input'));
   const output = path.join(temp, suffix('output'));
@@ -69,12 +73,12 @@ export default function functionExecSync(options: ExecWorkerOptions, filePath: s
     const sleepMS = options.sleep === undefined ? DEFAULT_SLEEP_MS : options.sleep;
     let cmd = `"${execPath}" "${worker}" "${input}" "${output}"`;
     cmd += `${isWindows ? '&' : ';'} echo "done" > ${done}`;
-    cp.exec(cmd);
+    cp.exec(cmd, { env });
     while (!existsSync(done)) {
       sleep(sleepMS);
     }
   } else {
-    cp.execFileSync(execPath, [worker, input, output]);
+    cp.execFileSync(execPath, [worker, input, output], { env });
   }
   unlinkSafe(input);
   unlinkSafe(done);

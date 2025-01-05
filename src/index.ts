@@ -46,7 +46,7 @@ export default function functionExecSync(options: ExecWorkerOptions, filePath: s
   const workerData = {
     filePath,
     args,
-    callbacks: options.callbacks || false,
+    callbacks: options.callbacks === undefined ? false : options.callbacks,
     env,
     cwd: options.cwd === undefined ? process.cwd() : options.cwd,
   };

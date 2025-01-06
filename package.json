@@ -36,7 +36,7 @@
     "version": "tsds version"
   },
   "dependencies": {
-    "async-compat": "^1.6.0",
+    "async-compat": "^1.6.1",
     "core-js": "^3.39.0",
     "mkdirp-classic": "^0.5.3",
     "os-shim": "^0.1.3",

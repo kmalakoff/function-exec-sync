@@ -29,7 +29,7 @@ const existsSync = (test) => {
 
 import type { ExecWorkerOptions } from './types';
 export type * from './types';
-export default function functionExecSync(options: ExecWorkerOptions, filePath: string): unknown {
+export default function functionExecSync(options: ExecWorkerOptions, filePath: string, ..._args: unknown[]): unknown {
   // biome-ignore lint/style/noArguments: <explanation>
   const args = Array.prototype.slice.call(arguments, 2);
   if (typeof options === 'string') {

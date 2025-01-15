@@ -1,1 +1,1 @@
-ignores: ["@types/*", "function-exec-sync", "depcheck", "@biomejs/*"]
+ignores: ["function-exec-sync"]

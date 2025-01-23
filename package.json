@@ -43,7 +43,7 @@
     "serialize-javascript": "6.0.0",
     "short-hash": "^1.0.0",
     "temp-suffix": "^0.1.11",
-    "thread-sleep-compat": "^0.2.17"
+    "thread-sleep-compat": "^0.2.18"
   },
   "devDependencies": {
     "@types/mocha": "*",

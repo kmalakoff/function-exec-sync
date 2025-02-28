@@ -40,7 +40,7 @@
     "core-js": "^3.40.0",
     "mkdirp-classic": "^0.5.3",
     "os-shim": "^0.1.3",
-    "serialize-javascript": "6.0.0",
+    "serialize-javascript": "6.0.2",
     "short-hash": "^1.0.0",
     "temp-suffix": "^0.1.14",
     "thread-sleep-compat": "^0.2.23"

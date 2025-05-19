@@ -23,7 +23,7 @@
     "email": "kmalakoff@gmail.com",
     "url": "https://github.com/kmalakoff"
   },
-  "main": "dist/cjs/index.cjs",
+  "main": "dist/cjs/index.js",
   "types": "dist/cjs/index.d.cts",
   "files": [
     "dist"

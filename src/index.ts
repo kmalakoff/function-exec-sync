@@ -1,4 +1,4 @@
-require('./polyfills.ts');
+require('./polyfills.js');
 const fs = require('fs');
 const path = require('path');
 const url = require('url');
@@ -14,9 +14,9 @@ const DEFAULT_SLEEP_MS = 100;
 const NODES = ['node', 'node.exe', 'node.cmd'];
 const isWindows = process.platform === 'win32' || /^(msys|cygwin)$/.test(process.env.OSTYPE);
 const __dirname = path.dirname(typeof __filename === 'undefined' ? url.fileURLToPath(import.meta.url) : __filename);
-const worker = path.join(__dirname, 'workers', 'runFunction.cjs');
+const worker = path.join(__dirname, 'workers', 'runFunction.js');
 
-const unlinkSafe = require('./unlinkSafe.ts');
+const unlinkSafe = require('./unlinkSafe.js');
 
 const existsSync = (test) => {
   try {
@@ -27,8 +27,8 @@ const existsSync = (test) => {
   }
 };
 
-import type { ExecWorkerOptions } from './types';
-export type * from './types';
+import type { ExecWorkerOptions } from './types.js';
+export type * from './types.js';
 export default function functionExecSync(options: ExecWorkerOptions, filePath: string, ...args): unknown {
   if (typeof options === 'string') {
     args.unshift(filePath);

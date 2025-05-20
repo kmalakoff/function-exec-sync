@@ -1,22 +1,25 @@
-require('./polyfills.js');
-const fs = require('fs');
-const path = require('path');
-const url = require('url');
-const cp = require('child_process');
-const tmpdir = require('os').tmpdir || require('os-shim').tmpdir;
-const suffix = require('temp-suffix');
-const serialize = require('serialize-javascript');
-const mkdirp = require('mkdirp-classic');
-const shortHash = require('short-hash');
-const sleep = require('thread-sleep-compat');
+import './polyfills.cjs';
+import cp from 'child_process';
+import fs from 'fs';
+import path from 'path';
+import url from 'url';
+import mkdirp from 'mkdirp-classic';
+import serialize from 'serialize-javascript';
+import shortHash from 'short-hash';
+import suffix from 'temp-suffix';
+import sleep from 'thread-sleep-compat';
+
+import os from 'os';
+import osShim from 'os-shim';
+const tmpdir = os.tmpdir || osShim.tmpdir;
 
 const DEFAULT_SLEEP_MS = 100;
 const NODES = ['node', 'node.exe', 'node.cmd'];
 const isWindows = process.platform === 'win32' || /^(msys|cygwin)$/.test(process.env.OSTYPE);
 const __dirname = path.dirname(typeof __filename === 'undefined' ? url.fileURLToPath(import.meta.url) : __filename);
-const worker = path.join(__dirname, 'workers', 'runFunction.js');
+const worker = path.join(__dirname, 'workers', 'runFunction.cjs');
 
-const unlinkSafe = require('./unlinkSafe.js');
+import unlinkSafe from './unlinkSafe.js';
 
 const existsSync = (test) => {
   try {

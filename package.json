@@ -23,6 +23,14 @@
     "email": "kmalakoff@gmail.com",
     "url": "https://github.com/kmalakoff"
   },
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "main": "dist/cjs/index.js",
   "types": "dist/cjs/index.d.cts",
   "files": [
@@ -42,8 +50,8 @@
     "os-shim": "^0.1.3",
     "serialize-javascript": "6.0.2",
     "short-hash": "^1.0.0",
-    "temp-suffix": "^0.1.17",
-    "thread-sleep-compat": "^0.2.25"
+    "temp-suffix": "^0.1.18",
+    "thread-sleep-compat": "^0.2.26"
   },
   "devDependencies": {
     "@types/mocha": "*",
@@ -55,9 +63,6 @@
     "node": ">=0.8"
   },
   "tsds": {
-    "source": "src/index.ts",
-    "targets": [
-      "cjs"
-    ]
+    "source": "src/index.ts"
   }
 }

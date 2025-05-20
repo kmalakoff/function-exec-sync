@@ -1,10 +1,14 @@
-const Pinkie = require('pinkie-promise');
-const assert = require('assert');
+import assert from 'assert';
+import Pinkie from 'pinkie-promise';
 
-const call = require('function-exec-sync');
-const keys = require('lodash.keys');
+// @ts-ignore
+import call from 'function-exec-sync';
+import keys from 'lodash.keys';
 
-const path = require('path');
+import path from 'path';
+import url from 'url';
+
+const __dirname = path.dirname(typeof __filename === 'undefined' ? url.fileURLToPath(import.meta.url) : __filename);
 const DATA = path.join(__dirname, '..', 'data');
 
 describe('function-exec-sync', () => {
@@ -12,7 +16,7 @@ describe('function-exec-sync', () => {
     (() => {
       // patch and restore promise
       // @ts-ignore
-      let rootPromise;
+      let rootPromise: Promise;
       before(() => {
         rootPromise = global.Promise;
         global.Promise = Pinkie;
@@ -23,13 +27,13 @@ describe('function-exec-sync', () => {
     })();
 
     it('callback', () => {
-      const fnPath = path.join(DATA, 'callback');
+      const fnPath = path.join(DATA, 'callback.cjs');
       const result = call({ callbacks: true }, fnPath, 101);
       assert.equal(result, 101);
     });
 
     it('callback error', () => {
-      const fnPath = path.join(DATA, 'callbackError');
+      const fnPath = path.join(DATA, 'callbackError.cjs');
       try {
         call({ callbacks: true }, fnPath, 101);
         assert.ok(false);
@@ -40,25 +44,25 @@ describe('function-exec-sync', () => {
     });
 
     it('no export', () => {
-      const fnPath = path.join(DATA, 'noExport');
+      const fnPath = path.join(DATA, 'noExport.cjs');
       const result = call(fnPath);
       assert.equal(keys(result).length, 0);
     });
 
     it('process result', () => {
-      const fnPath = path.join(DATA, 'processVersion');
+      const fnPath = path.join(DATA, 'processVersion.cjs');
       const result = call(fnPath);
       assert.equal(result, process.version);
     });
 
     it('promise', () => {
-      const fnPath = path.join(DATA, 'promise');
+      const fnPath = path.join(DATA, 'promise.cjs');
       const result = call(fnPath, 101);
       assert.equal(result, 101);
     });
 
     it('promise error', () => {
-      const fnPath = path.join(DATA, 'promiseError');
+      const fnPath = path.join(DATA, 'promiseError.cjs');
       try {
         call(fnPath, 101);
         assert.ok(false);
@@ -78,13 +82,13 @@ describe('function-exec-sync', () => {
         new Map(),
         new Set(),
       ];
-      const fnPath = path.join(DATA, 'returnArguments');
+      const fnPath = path.join(DATA, 'returnArguments.cjs');
       const result = call(fnPath, ...args);
       assert.equal(JSON.stringify(result), JSON.stringify(args));
     });
 
     it('throw error', () => {
-      const fnPath = path.join(DATA, 'throwError');
+      const fnPath = path.join(DATA, 'throwError.cjs');
       try {
         call(fnPath);
         assert.ok(false);
@@ -96,31 +100,31 @@ describe('function-exec-sync', () => {
 
   describe('options', () => {
     it('return cwd', () => {
-      const fnPath = path.join(DATA, 'returnCwd');
+      const fnPath = path.join(DATA, 'returnCwd.cjs');
       const result = call({ cwd: path.dirname(__dirname) }, fnPath);
       assert.equal(result, path.dirname(__dirname));
     });
 
     it('return env', () => {
-      const fnPath = path.join(DATA, 'returnEnv');
+      const fnPath = path.join(DATA, 'returnEnv.cjs');
       const result = call({ env: { hello: 'there' } }, fnPath);
       assert.equal(result.hello, 'there');
     });
 
     it('return name', () => {
-      const fnPath = path.join(DATA, 'returnName');
+      const fnPath = path.join(DATA, 'returnName.cjs');
       const result = call({ name: 'bob' }, fnPath);
       assert.equal(result, 'bob');
     });
 
     it('long sleep', () => {
-      const fnPath = path.join(DATA, 'returnCwd');
+      const fnPath = path.join(DATA, 'returnCwd.cjs');
       const result = call({ cwd: path.dirname(__dirname), sleep: 10 }, fnPath);
       assert.equal(result, path.dirname(__dirname));
     });
 
     it('execPath invalid format', () => {
-      const fnPath = path.join(DATA, 'returnCwd');
+      const fnPath = path.join(DATA, 'returnCwd.cjs');
       try {
         call({ execPath: 'hsadjhadkjhsda' }, fnPath);
         assert.ok(false);
@@ -130,7 +134,7 @@ describe('function-exec-sync', () => {
     });
 
     it('execPath fake path', () => {
-      const fnPath = path.join(DATA, 'returnCwd');
+      const fnPath = path.join(DATA, 'returnCwd.cjs');
       try {
         call({ execPath: '/fake/path/node' }, fnPath);
         assert.ok(false);

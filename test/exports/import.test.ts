@@ -1,5 +1,7 @@
-const assert = require('assert');
-const call = require('function-exec-sync');
+import assert from 'assert';
+
+// @ts-ignore
+import call from 'function-exec-sync';
 
 describe('exports .ts', () => {
   it('defaults', () => {

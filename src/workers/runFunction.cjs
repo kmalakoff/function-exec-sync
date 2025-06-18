@@ -20,7 +20,7 @@ function writeError(error) {
 
 // get data
 try {
-  // biome-ignore lint/security/noGlobalEval: <explanation>
+  // biome-ignore lint/security/noGlobalEval: Serialize
   const workerData = eval(`(${fs.readFileSync(input, 'utf8')})`);
 
   // set up env

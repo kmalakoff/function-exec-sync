@@ -1,16 +1,16 @@
 import './polyfills.cjs';
 import cp from 'child_process';
 import fs from 'fs';
-import path from 'path';
-import url from 'url';
 import mkdirp from 'mkdirp-classic';
+import os from 'os';
+import osShim from 'os-shim';
+import path from 'path';
 import serialize from 'serialize-javascript';
 import shortHash from 'short-hash';
 import suffix from 'temp-suffix';
 import sleep from 'thread-sleep-compat';
+import url from 'url';
 
-import os from 'os';
-import osShim from 'os-shim';
 const tmpdir = os.tmpdir || osShim.tmpdir;
 
 const DEFAULT_SLEEP_MS = 100;
@@ -31,6 +31,7 @@ const existsSync = (test) => {
 };
 
 import type { ExecWorkerOptions } from './types.js';
+
 export type * from './types.js';
 export default function functionExecSync(options: ExecWorkerOptions, filePath: string, ...args): unknown {
   if (typeof options === 'string') {
@@ -85,10 +86,9 @@ export default function functionExecSync(options: ExecWorkerOptions, filePath: s
   unlinkSafe(done);
 
   // get data and clean up
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  let res: { error: { [x: string]: any; message: string }; value: any };
+  let res: { error?: Error; value: unknown };
   try {
-    // biome-ignore lint/security/noGlobalEval: <explanation>
+    // biome-ignore lint/security/noGlobalEval: Serialize
     res = eval(`(${fs.readFileSync(output, 'utf8')})`);
     unlinkSafe(output);
   } catch (err) {

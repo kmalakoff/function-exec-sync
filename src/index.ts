@@ -32,6 +32,10 @@ const existsSync = (test) => {
 
 import type { ExecWorkerOptions } from './types.js';
 
+interface NodeJSEnv extends NodeJS.ProcessEnv {
+  NODE_OPTIONS: string;
+}
+
 export type * from './types.js';
 export default function functionExecSync(options: ExecWorkerOptions, filePath: string, ...args): unknown {
   if (typeof options === 'string') {
@@ -42,8 +46,7 @@ export default function functionExecSync(options: ExecWorkerOptions, filePath: s
   if (!filePath) throw new Error('function-exec-sync missing file');
   options = options || {};
 
-  const env = { ...(options.env || process.env) };
-  // @ts-ignore
+  const env = { ...(options.env || process.env) } as NodeJSEnv;
   delete env.NODE_OPTIONS;
   const workerData = {
     filePath,

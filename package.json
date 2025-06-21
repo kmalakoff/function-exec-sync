@@ -44,14 +44,14 @@
     "version": "tsds version"
   },
   "dependencies": {
-    "async-compat": "^1.6.15",
+    "async-compat": "^1.6.16",
     "core-js": "^3.43.0",
     "mkdirp-classic": "^0.5.3",
     "os-shim": "^0.1.3",
     "serialize-javascript": "6.0.2",
     "short-hash": "^1.0.0",
     "temp-suffix": "^0.1.20",
-    "thread-sleep-compat": "^0.2.29"
+    "thread-sleep-compat": "^0.2.30"
   },
   "devDependencies": {
     "@types/mocha": "*",

@@ -21,7 +21,7 @@ const worker = path.join(__dirname, 'workers', 'runFunction.cjs');
 
 import unlinkSafe from './unlinkSafe.ts';
 
-const existsSync = (test) => {
+const existsSync = (test: string): boolean => {
   try {
     (fs.accessSync || fs.statSync)(test);
     return true;
@@ -37,7 +37,7 @@ interface NodeJSEnv extends NodeJS.ProcessEnv {
 }
 
 export type * from './types.ts';
-export default function functionExecSync(options: ExecWorkerOptions, filePath: string, ...args): unknown {
+export default function functionExecSync(options: ExecWorkerOptions, filePath: string, ...args: unknown[]): unknown {
   if (typeof options === 'string') {
     args.unshift(filePath);
     filePath = options;

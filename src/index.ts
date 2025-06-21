@@ -19,7 +19,7 @@ const isWindows = process.platform === 'win32' || /^(msys|cygwin)$/.test(process
 const __dirname = path.dirname(typeof __filename === 'undefined' ? url.fileURLToPath(import.meta.url) : __filename);
 const worker = path.join(__dirname, 'workers', 'runFunction.cjs');
 
-import unlinkSafe from './unlinkSafe.js';
+import unlinkSafe from './unlinkSafe.ts';
 
 const existsSync = (test) => {
   try {
@@ -30,13 +30,13 @@ const existsSync = (test) => {
   }
 };
 
-import type { ExecWorkerOptions } from './types.js';
+import type { ExecWorkerOptions } from './types.ts';
 
 interface NodeJSEnv extends NodeJS.ProcessEnv {
   NODE_OPTIONS: string;
 }
 
-export type * from './types.js';
+export type * from './types.ts';
 export default function functionExecSync(options: ExecWorkerOptions, filePath: string, ...args): unknown {
   if (typeof options === 'string') {
     args.unshift(filePath);

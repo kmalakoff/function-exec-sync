@@ -37,14 +37,16 @@ interface NodeJSEnv extends NodeJS.ProcessEnv {
 }
 
 export type * from './types.ts';
-export default function functionExecSync(options: ExecWorkerOptions, filePath: string, ...args: unknown[]): unknown {
+export default function functionExecSync(filePath: string, ...args: unknown[]);
+export default function functionExecSync(options: ExecWorkerOptions, filePath: string, ...args: unknown[]);
+export default function functionExecSync(options: ExecWorkerOptions | string, filePath?: string | unknown[], ...args: unknown[]): unknown {
   if (typeof options === 'string') {
     args.unshift(filePath);
     filePath = options;
     options = null;
   }
   if (!filePath) throw new Error('function-exec-sync missing file');
-  options = options || {};
+  options = (options || {}) as ExecWorkerOptions;
 
   const env = { ...(options.env || process.env) } as NodeJSEnv;
   delete env.NODE_OPTIONS;

@@ -1,5 +1,5 @@
 const fs = require('fs');
-const serialize = require('serialize-javascript');
+const serialize = require('../serialize-javascript.cjs');
 const compat = require('async-compat');
 
 const input = process.argv[2];

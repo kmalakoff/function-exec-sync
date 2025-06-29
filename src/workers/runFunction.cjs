@@ -1,4 +1,3 @@
-require('../polyfills.cjs');
 const fs = require('fs');
 const serialize = require('serialize-javascript');
 const compat = require('async-compat');

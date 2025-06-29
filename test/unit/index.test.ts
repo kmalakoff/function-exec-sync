@@ -9,6 +9,8 @@ import url from 'url';
 const __dirname = path.dirname(typeof __filename === 'undefined' ? url.fileURLToPath(import.meta.url) : __filename);
 const DATA = path.join(__dirname, '..', 'data');
 
+const major = +process.versions.node.split('.')[0];
+
 describe('function-exec-sync', () => {
   describe('test cases', () => {
     (() => {
@@ -75,9 +77,7 @@ describe('function-exec-sync', () => {
         function hey() {
           return null;
         },
-        new URL('https://hello.com'),
-        new Map(),
-        new Set(),
+        major > 0 ? [typeof URL === 'undefined' ? null : new URL('https://hello.com'), typeof Map === 'undefined' ? null : new Map(), typeof Set === 'undefined' ? null : new Set()] : [],
       ];
       const fnPath = path.join(DATA, 'returnArguments.cjs');
       const result = call(fnPath, ...args);

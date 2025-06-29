@@ -1,4 +1,3 @@
-import './polyfills.cjs';
 import cp from 'child_process';
 import fs from 'fs';
 import mkdirp from 'mkdirp-classic';

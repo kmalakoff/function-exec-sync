@@ -1,0 +1,48 @@
+diff --git a/node_modules/serialize-javascript/index.js b/node_modules/serialize-javascript/index.js
+index 156f8f9..322a68a 100644
+--- a/node_modules/serialize-javascript/index.js
++++ b/node_modules/serialize-javascript/index.js
+@@ -55,6 +55,11 @@ function deleteFunctions(obj){
+     }
+ }
+ 
++var hasMap = typeof Map !== 'undefined';
++var hasSet = typeof Set !== 'undefined';
++var hasURL = typeof URL !== 'undefined';
++var hasBigInt = typeof BigInt !== 'undefined';
++
+ module.exports = function serialize(obj, options) {
+     options || (options = {});
+ 
+@@ -83,7 +88,7 @@ module.exports = function serialize(obj, options) {
+             deleteFunctions(value);
+         }
+ 
+-        if (!value && value !== undefined && value !== BigInt(0)) {
++        if (hasBigInt && !value && value !== undefined && value !== BigInt(0)) {
+             return value;
+         }
+ 
+@@ -101,11 +106,11 @@ module.exports = function serialize(obj, options) {
+                 return '@__D-' + UID + '-' + (dates.push(origValue) - 1) + '__@';
+             }
+ 
+-            if(origValue instanceof Map) {
++            if(hasMap && origValue instanceof Map) {
+                 return '@__M-' + UID + '-' + (maps.push(origValue) - 1) + '__@';
+             }
+ 
+-            if(origValue instanceof Set) {
++            if(hasSet && origValue instanceof Set) {
+                 return '@__S-' + UID + '-' + (sets.push(origValue) - 1) + '__@';
+             }
+ 
+@@ -116,7 +121,7 @@ module.exports = function serialize(obj, options) {
+                 }
+             }
+ 
+-            if(origValue instanceof URL) {
++            if(hasURL && origValue instanceof URL) {
+                 return '@__L-' + UID + '-' + (urls.push(origValue) - 1) + '__@';
+             }
+         }

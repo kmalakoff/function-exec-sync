@@ -1,1 +1,1 @@
-ignores: ["function-exec-sync"]
+ignores: ["function-exec-sync", "patch-package"]

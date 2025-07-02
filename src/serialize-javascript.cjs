@@ -4,6 +4,7 @@ var hasMap = typeof Map !== 'undefined';
 var hasSet = typeof Set !== 'undefined';
 var hasURL = typeof URL !== 'undefined';
 var hasBigInt = typeof BigInt !== 'undefined';
+var isArray = Array.isArray || ((x) => Object.prototype.toString.call(x) === '[object Array]');
 
 /*
 Copyright (c) 2014, Yahoo! Inc. All rights reserved.
@@ -115,7 +116,7 @@ module.exports = function serialize(obj, options) {
         return `@__S-${UID}-${sets.push(origValue) - 1}__@`;
       }
 
-      if (Array.isArray(origValue)) {
+      if (isArray(origValue)) {
         var isSparse = origValue.filter(() => true).length !== origValue.length;
         if (isSparse) {
           return `@__A-${UID}-${arrays.push(origValue) - 1}__@`;

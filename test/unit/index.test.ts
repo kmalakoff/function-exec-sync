@@ -1,5 +1,4 @@
 import assert from 'assert';
-// @ts-ignore
 import call from 'function-exec-sync';
 import keys from 'lodash.keys';
 import path from 'path';

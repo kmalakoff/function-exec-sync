@@ -230,11 +230,11 @@ module.exports = function serialize(obj, options) {
     }
 
     if (type === 'D') {
-      return `new Date(\"${dates[valueIndex].toISOString()}\")`;
+      return `new Date("${dates[valueIndex].toISOString()}")`;
     }
 
     if (type === 'R') {
-      return `new RegExp(${serialize(regexps[valueIndex].source)}, \"${regexps[valueIndex].flags}\")`;
+      return `new RegExp(${serialize(regexps[valueIndex].source)}, "${regexps[valueIndex].flags}")`;
     }
 
     if (type === 'M') {
@@ -258,7 +258,7 @@ module.exports = function serialize(obj, options) {
     }
 
     if (type === 'B') {
-      return `BigInt(\"${bigInts[valueIndex]}\")`;
+      return `BigInt("${bigInts[valueIndex]}")`;
     }
 
     if (type === 'L') {

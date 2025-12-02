@@ -78,7 +78,7 @@ export default function functionExecSync(options: ExecWorkerOptions | string, fi
   if (!cp.execFileSync) {
     const sleepMS = options.sleep === undefined ? DEFAULT_SLEEP_MS : options.sleep;
     let cmd = `"${execPath}" "${worker}" "${input}" "${output}"`;
-    cmd += `${isWindows ? '&' : ';'} echo "done" > ${done}`;
+    cmd += `${isWindows ? ' & ' : '; '}echo "done" > "${done}"`;
     cp.exec(cmd, { env });
     while (!existsSync(done)) {
       sleep(sleepMS);

@@ -1,16 +1,13 @@
 import cp from 'child_process';
 import fs from 'fs';
 import mkdirp from 'mkdirp-classic';
-import os from 'os';
-import osShim from 'os-shim';
 import path from 'path';
 import shortHash from 'short-hash';
 import suffix from 'temp-suffix';
 import sleep from 'thread-sleep-compat';
 import url from 'url';
+import { tmpdir } from './compat.ts';
 import serialize from './serialize-javascript.cjs';
-
-const tmpdir = os.tmpdir || osShim.tmpdir;
 
 const DEFAULT_SLEEP_MS = 100;
 const NODES = ['node', 'node.exe', 'node.cmd'];

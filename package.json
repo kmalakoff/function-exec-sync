@@ -61,7 +61,7 @@
     "node-version-use": "^2.1.5",
     "pinkie-promise": "^2.0.1",
     "ts-dev-stack": "^1.21.3",
-    "tsds-config": "^0.2.0"
+    "tsds-config": "^0.2.1"
   },
   "engines": {
     "node": ">=0.8"

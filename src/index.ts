@@ -7,13 +7,14 @@ import suffix from 'temp-suffix';
 import sleep from 'thread-sleep-compat';
 import url from 'url';
 import { tmpdir } from './compat.ts';
-import serialize from './serialize-javascript.cjs';
+import serialize from './serialize-javascript.ts';
 
 const DEFAULT_SLEEP_MS = 100;
 const NODES = ['node', 'node.exe', 'node.cmd'];
 const isWindows = process.platform === 'win32' || /^(msys|cygwin)$/.test(process.env.OSTYPE);
 const __dirname = path.dirname(typeof __filename === 'undefined' ? url.fileURLToPath(import.meta.url) : __filename);
-const worker = path.join(__dirname, 'workers', 'runFunction.cjs');
+// Worker MUST always load from dist/cjs/ for old Node compatibility (works from both cjs and esm)
+const worker = path.join(__dirname, '..', 'cjs', 'workers', 'runFunction.js');
 
 import unlinkSafe from './unlinkSafe.ts';
 

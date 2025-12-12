@@ -1,10 +1,10 @@
 // Patched for backwards compatiblity from: https://github.com/yahoo/serialize-javascript/blob/main/LICENSE
 
-var hasMap = typeof Map !== 'undefined';
-var hasSet = typeof Set !== 'undefined';
-var hasURL = typeof URL !== 'undefined';
-var hasBigInt = typeof BigInt !== 'undefined';
-var isArray = Array.isArray || ((x) => Object.prototype.toString.call(x) === '[object Array]');
+const hasMap = typeof Map !== 'undefined';
+const hasSet = typeof Set !== 'undefined';
+const hasURL = typeof URL !== 'undefined';
+const hasBigInt = typeof BigInt !== 'undefined';
+const isArray = Array.isArray || ((x: unknown) => Object.prototype.toString.call(x) === '[object Array]');
 
 /*
 Copyright (c) 2014, Yahoo! Inc. All rights reserved.
@@ -12,25 +12,23 @@ Copyrights licensed under the New BSD License.
 See the accompanying LICENSE file for terms.
 */
 
-('use strict');
-
-var randomBytes = require('randombytes');
+import randomBytes from 'randombytes';
 
 // Generate an internal UID to make the regexp pattern harder to guess.
-var UID_LENGTH = 16;
-var UID = generateUID();
-var PLACE_HOLDER_REGEXP = new RegExp(`(\\\\)?"@__(F|R|D|M|S|A|U|I|B|L)-${UID}-(\\d+)__@"`, 'g');
+const UID_LENGTH = 16;
+const UID = generateUID();
+const PLACE_HOLDER_REGEXP = new RegExp(`(\\\\)?"@__(F|R|D|M|S|A|U|I|B|L)-${UID}-(\\d+)__@"`, 'g');
 
-var IS_NATIVE_CODE_REGEXP = /\{\s*\[native code\]\s*\}/g;
-var IS_PURE_FUNCTION = /function.*?\(/;
-var IS_ARROW_FUNCTION = /.*?=>.*?/;
-var UNSAFE_CHARS_REGEXP = /[<>/\u2028\u2029]/g;
+const IS_NATIVE_CODE_REGEXP = /\{\s*\[native code\]\s*\}/g;
+const IS_PURE_FUNCTION = /function.*?\(/;
+const IS_ARROW_FUNCTION = /.*?=>.*?/;
+const UNSAFE_CHARS_REGEXP = /[<>/\u2028\u2029]/g;
 
-var RESERVED_SYMBOLS = ['*', 'async'];
+const RESERVED_SYMBOLS = ['*', 'async'];
 
 // Mapping of unsafe HTML and invalid JavaScript line terminator chars to their
 // Unicode char counterparts which are safe to use in JavaScript strings.
-var ESCAPED_CHARS = {
+const ESCAPED_CHARS: Record<string, string> = {
   '<': '\\u003C',
   '>': '\\u003E',
   '/': '\\u002F',
@@ -38,56 +36,66 @@ var ESCAPED_CHARS = {
   '\u2029': '\\u2029',
 };
 
-function escapeUnsafeChars(unsafeChar) {
+function escapeUnsafeChars(unsafeChar: string): string {
   return ESCAPED_CHARS[unsafeChar];
 }
 
-function generateUID() {
-  var bytes = randomBytes(UID_LENGTH);
-  var result = '';
-  for (var i = 0; i < UID_LENGTH; ++i) {
+function generateUID(): string {
+  const bytes = randomBytes(UID_LENGTH);
+  let result = '';
+  for (let i = 0; i < UID_LENGTH; ++i) {
     result += bytes[i].toString(16);
   }
   return result;
 }
 
-function deleteFunctions(obj) {
-  var functionKeys = [];
-  for (var key in obj) {
+function deleteFunctions(obj: Record<string, unknown>): void {
+  const functionKeys: string[] = [];
+  for (const key in obj) {
     if (typeof obj[key] === 'function') {
       functionKeys.push(key);
     }
   }
-  for (var i = 0; i < functionKeys.length; i++) {
+  for (let i = 0; i < functionKeys.length; i++) {
     delete obj[functionKeys[i]];
   }
 }
 
-module.exports = function serialize(obj, options) {
-  options = options || {};
+interface SerializeOptions {
+  space?: number | string;
+  isJSON?: boolean;
+  unsafe?: boolean;
+  ignoreFunction?: boolean;
+}
 
-  // Backwards-compatibility for `space` as the second argument.
-  if (typeof options === 'number' || typeof options === 'string') {
-    options = { space: options };
+export default function serialize(obj: unknown, options?: SerializeOptions | number | string): string {
+  let opts: SerializeOptions = {};
+  if (options) {
+    // Backwards-compatibility for `space` as the second argument.
+    if (typeof options === 'number' || typeof options === 'string') {
+      opts = { space: options };
+    } else {
+      opts = options;
+    }
   }
 
-  var functions = [];
-  var regexps = [];
-  var dates = [];
-  var maps = [];
-  var sets = [];
-  var arrays = [];
-  var undefs = [];
-  var infinities = [];
-  var bigInts = [];
-  var urls = [];
+  const functions: ((...args: unknown[]) => unknown)[] = [];
+  const regexps: RegExp[] = [];
+  const dates: Date[] = [];
+  const maps: Map<unknown, unknown>[] = [];
+  const sets: Set<unknown>[] = [];
+  const arrays: unknown[][] = [];
+  const undefs: undefined[] = [];
+  const infinities: number[] = [];
+  const bigInts: bigint[] = [];
+  const urls: URL[] = [];
 
   // Returns placeholders for functions and regexps (identified by index)
   // which are later replaced by their string representation.
-  function replacer(key, value) {
+  function replacer(this: Record<string, unknown>, key: string, value: unknown): unknown {
     // For nested function
-    if (options.ignoreFunction) {
-      deleteFunctions(value);
+    if (opts.ignoreFunction) {
+      deleteFunctions(value as Record<string, unknown>);
     }
 
     if (hasBigInt && !value && value !== undefined && value !== BigInt(0)) {
@@ -96,8 +104,8 @@ module.exports = function serialize(obj, options) {
 
     // If the value is an object w/ a toJSON method, toJSON is called before
     // the replacer runs, so we use this[key] to get the non-toJSONed value.
-    var origValue = this[key];
-    var type = typeof origValue;
+    const origValue = this[key];
+    const type = typeof origValue;
 
     if (type === 'object') {
       if (origValue instanceof RegExp) {
@@ -117,9 +125,9 @@ module.exports = function serialize(obj, options) {
       }
 
       if (isArray(origValue)) {
-        var isSparse = origValue.filter(() => true).length !== origValue.length;
+        const isSparse = (origValue as unknown[]).filter(() => true).length !== (origValue as unknown[]).length;
         if (isSparse) {
-          return `@__A-${UID}-${arrays.push(origValue) - 1}__@`;
+          return `@__A-${UID}-${arrays.push(origValue as unknown[]) - 1}__@`;
         }
       }
 
@@ -129,26 +137,26 @@ module.exports = function serialize(obj, options) {
     }
 
     if (type === 'function') {
-      return `@__F-${UID}-${functions.push(origValue) - 1}__@`;
+      return `@__F-${UID}-${functions.push(origValue as (...args: unknown[]) => unknown) - 1}__@`;
     }
 
     if (type === 'undefined') {
-      return `@__U-${UID}-${undefs.push(origValue) - 1}__@`;
+      return `@__U-${UID}-${undefs.push(origValue as undefined) - 1}__@`;
     }
 
-    if (type === 'number' && !Number.isNaN(origValue) && !Number.isFinite(origValue)) {
-      return `@__I-${UID}-${infinities.push(origValue) - 1}__@`;
+    if (type === 'number' && !Number.isNaN(origValue as number) && !Number.isFinite(origValue as number)) {
+      return `@__I-${UID}-${infinities.push(origValue as number) - 1}__@`;
     }
 
     if (type === 'bigint') {
-      return `@__B-${UID}-${bigInts.push(origValue) - 1}__@`;
+      return `@__B-${UID}-${bigInts.push(origValue as bigint) - 1}__@`;
     }
 
     return value;
   }
 
-  function serializeFunc(fn) {
-    var serializedFn = fn.toString();
+  function serializeFunc(fn: (...args: unknown[]) => unknown): string {
+    const serializedFn = fn.toString();
     if (IS_NATIVE_CODE_REGEXP.test(serializedFn)) {
       throw new TypeError(`Serializing native function: ${fn.name}`);
     }
@@ -163,14 +171,14 @@ module.exports = function serialize(obj, options) {
       return serializedFn;
     }
 
-    var argsStartsAt = serializedFn.indexOf('(');
-    var def = serializedFn
+    const argsStartsAt = serializedFn.indexOf('(');
+    const def = serializedFn
       .substr(0, argsStartsAt)
       .trim()
       .split(' ')
       .filter((val) => val.length > 0);
 
-    var nonReservedSymbols = def.filter((val) => RESERVED_SYMBOLS.indexOf(val) === -1);
+    const nonReservedSymbols = def.filter((val) => RESERVED_SYMBOLS.indexOf(val) === -1);
 
     // enhanced literal objects, example: {key() {}}
     if (nonReservedSymbols.length > 0) {
@@ -182,23 +190,24 @@ module.exports = function serialize(obj, options) {
   }
 
   // Check if the parameter is function
-  if (options.ignoreFunction && typeof obj === 'function') {
-    obj = undefined;
+  let objToSerialize = obj;
+  if (opts.ignoreFunction && typeof objToSerialize === 'function') {
+    objToSerialize = undefined;
   }
   // Protects against `JSON.stringify()` returning `undefined`, by serializing
   // to the literal string: "undefined".
-  if (obj === undefined) {
-    return String(obj);
+  if (objToSerialize === undefined) {
+    return String(objToSerialize);
   }
 
-  var str;
+  let str: string | undefined;
 
   // Creates a JSON string representation of the value.
   // NOTE: Node 0.12 goes into slow mode with extra JSON.stringify() args.
-  if (options.isJSON && !options.space) {
-    str = JSON.stringify(obj);
+  if (opts.isJSON && !opts.space) {
+    str = JSON.stringify(objToSerialize);
   } else {
-    str = JSON.stringify(obj, options.isJSON ? null : replacer, options.space);
+    str = JSON.stringify(objToSerialize, opts.isJSON ? null : replacer, opts.space);
   }
 
   // Protects against `JSON.stringify()` returning `undefined`, by serializing
@@ -210,7 +219,7 @@ module.exports = function serialize(obj, options) {
   // Replace unsafe HTML and invalid JavaScript line terminator chars with
   // their safe Unicode char counterpart. This _must_ happen before the
   // regexps and functions are serialized and added back to the string.
-  if (options.unsafe !== true) {
+  if (opts.unsafe !== true) {
     str = str.replace(UNSAFE_CHARS_REGEXP, escapeUnsafeChars);
   }
 
@@ -238,15 +247,15 @@ module.exports = function serialize(obj, options) {
     }
 
     if (type === 'M') {
-      return `new Map(${serialize(Array.from(maps[valueIndex].entries()), options)})`;
+      return `new Map(${serialize(Array.from(maps[valueIndex].entries()), opts)})`;
     }
 
     if (type === 'S') {
-      return `new Set(${serialize(Array.from(sets[valueIndex].values()), options)})`;
+      return `new Set(${serialize(Array.from(sets[valueIndex].values()), opts)})`;
     }
 
     if (type === 'A') {
-      return `Array.prototype.slice.call(${serialize(Object.assign({ length: arrays[valueIndex].length }, arrays[valueIndex]), options)})`;
+      return `Array.prototype.slice.call(${serialize(Object.assign({ length: arrays[valueIndex].length }, arrays[valueIndex]), opts)})`;
     }
 
     if (type === 'U') {
@@ -254,7 +263,7 @@ module.exports = function serialize(obj, options) {
     }
 
     if (type === 'I') {
-      return infinities[valueIndex];
+      return String(infinities[valueIndex]);
     }
 
     if (type === 'B') {
@@ -262,11 +271,11 @@ module.exports = function serialize(obj, options) {
     }
 
     if (type === 'L') {
-      return `new URL(${serialize(urls[valueIndex].toString(), options)})`;
+      return `new URL(${serialize(urls[valueIndex].toString(), opts)})`;
     }
 
-    var fn = functions[valueIndex];
+    const fn = functions[valueIndex];
 
     return serializeFunc(fn);
   });
-};
+}

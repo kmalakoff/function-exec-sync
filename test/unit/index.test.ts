@@ -1,14 +1,18 @@
 import assert from 'assert';
+import fs from 'fs';
 import call from 'function-exec-sync';
 import keys from 'lodash.keys';
+import { supportsESM } from 'module-compat';
 import path from 'path';
 import Pinkie from 'pinkie-promise';
 import url from 'url';
+import { tmpdir } from '../lib/compat.ts';
 
 const __dirname = path.dirname(typeof __filename === 'undefined' ? url.fileURLToPath(import.meta.url) : __filename);
 const DATA = path.join(__dirname, '..', 'data');
 
 const major = +process.versions.node.split('.')[0];
+const canLoadESM = supportsESM();
 
 describe('function-exec-sync', () => {
   describe('test cases', () => {
@@ -101,6 +105,32 @@ describe('function-exec-sync', () => {
       assert.equal(result, path.dirname(__dirname));
     });
 
+    it('works with different execPath (uses CJS worker)', function () {
+      // This test ensures CJS worker is used when execPath !== process.execPath
+      // We create a symlink to current Node to simulate a different execPath
+      const tmpDir = path.join(tmpdir(), `node-test-${Date.now()}`);
+      const tmpLink = path.join(tmpDir, 'node');
+      try {
+        fs.mkdirSync(tmpDir);
+        fs.symlinkSync(process.execPath, tmpLink);
+      } catch (_e) {
+        // Symlinks may not work on all systems (e.g., Windows without admin)
+        return this.skip();
+      }
+      try {
+        const fnPath = path.join(DATA, 'processVersion.cjs');
+        const result = call({ execPath: tmpLink }, fnPath) as string;
+        assert.equal(result, process.version);
+      } finally {
+        try {
+          fs.unlinkSync(tmpLink);
+          fs.rmdirSync(tmpDir);
+        } catch (_e) {
+          // ignore cleanup errors
+        }
+      }
+    });
+
     it('return env', () => {
       const fnPath = path.join(DATA, 'returnEnv.cjs');
       const result = call({ env: { hello: 'there' } }, fnPath);
@@ -137,6 +167,39 @@ describe('function-exec-sync', () => {
       } catch (err) {
         assert.ok(err);
       }
+    });
+  });
+
+  describe('ESM modules', () => {
+    before(function () {
+      if (!canLoadESM) this.skip();
+    });
+
+    it('loads ESM function with default export', () => {
+      const fnPath = path.join(DATA, 'esm-function.mjs');
+      const result = call(fnPath, 'test');
+      assert.equal(result, 'esm-test');
+    });
+
+    it('loads ESM callback function', () => {
+      const fnPath = path.join(DATA, 'esm-callback.mjs');
+      const result = call({ callbacks: true }, fnPath, 'test');
+      assert.equal(result, 'esm-callback-test');
+    });
+
+    it('loads ESM promise function', () => {
+      const fnPath = path.join(DATA, 'esm-promise.mjs');
+      const result = call(fnPath, 'test');
+      assert.equal(result, 'esm-promise-test');
+    });
+
+    it('loads ESM with raw interop for named exports', () => {
+      const fnPath = path.join(DATA, 'esm-named.mjs');
+      const result = call({ interop: 'raw' }, fnPath) as Record<string, () => string>;
+      assert.equal(typeof result.foo, 'function');
+      assert.equal(typeof result.bar, 'function');
+      assert.equal(result.foo(), 'foo-result');
+      assert.equal(result.bar(), 'bar-result');
     });
   });
 });

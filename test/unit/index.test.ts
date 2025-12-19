@@ -107,23 +107,24 @@ describe('function-exec-sync', () => {
 
     it('works with different execPath (uses CJS worker)', function () {
       // This test ensures CJS worker is used when execPath !== process.execPath
-      // We create a symlink to current Node to simulate a different execPath
+      // We copy the node executable to a temp location to simulate a different execPath
       const tmpDir = path.join(tmpdir(), `node-test-${Date.now()}`);
-      const tmpLink = path.join(tmpDir, 'node');
+      const isWindows = process.platform === 'win32';
+      const tmpNode = path.join(tmpDir, isWindows ? 'node.exe' : 'node');
       try {
         fs.mkdirSync(tmpDir);
-        fs.symlinkSync(process.execPath, tmpLink);
+        fs.copyFileSync(process.execPath, tmpNode);
+        if (!isWindows) fs.chmodSync(tmpNode, 0o755);
       } catch (_e) {
-        // Symlinks may not work on all systems (e.g., Windows without admin)
         return this.skip();
       }
       try {
         const fnPath = path.join(DATA, 'processVersion.cjs');
-        const result = call({ execPath: tmpLink }, fnPath) as string;
+        const result = call({ execPath: tmpNode }, fnPath) as string;
         assert.equal(result, process.version);
       } finally {
         try {
-          fs.unlinkSync(tmpLink);
+          fs.unlinkSync(tmpNode);
           fs.rmdirSync(tmpDir);
         } catch (_e) {
           // ignore cleanup errors

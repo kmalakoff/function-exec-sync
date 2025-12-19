@@ -59,6 +59,7 @@
     "@types/mocha": "*",
     "@types/node": "*",
     "lodash.keys": "^4.2.0",
+    "node-version-use": "*",
     "pinkie-promise": "*",
     "ts-dev-stack": "*",
     "tsds-config": "*"

@@ -1,6 +1,7 @@
 import cp from 'child_process';
 import fs from 'fs';
 import mkdirp from 'mkdirp-classic';
+import { supportsESM } from 'module-compat';
 import path from 'path';
 import shortHash from 'short-hash';
 import suffix from 'temp-suffix';
@@ -13,8 +14,12 @@ const DEFAULT_SLEEP_MS = 100;
 const NODES = ['node', 'node.exe', 'node.cmd'];
 const isWindows = process.platform === 'win32' || /^(msys|cygwin)$/.test(process.env.OSTYPE);
 const __dirname = path.dirname(typeof __filename === 'undefined' ? url.fileURLToPath(import.meta.url) : __filename);
-// Worker MUST always load from dist/cjs/ for old Node compatibility (works from both cjs and esm)
-const worker = path.join(__dirname, '..', 'cjs', 'workers', 'runFunction.js');
+
+// Worker paths:
+// - ESM worker: can load ESM modules via import() on Node 12+
+// - CJS worker: loads CJS modules only, works on Node 0.8+
+const esmWorker = path.join(__dirname, '..', 'esm', 'workers', 'runFunction.mjs');
+const cjsWorker = path.join(__dirname, '..', 'cjs', 'workers', 'runFunction.cjs');
 
 import unlinkSafe from './unlinkSafe.ts';
 
@@ -53,6 +58,8 @@ export default function functionExecSync(options: ExecWorkerOptions | string, fi
     callbacks: options.callbacks === undefined ? false : options.callbacks,
     env,
     cwd: options.cwd === undefined ? process.cwd() : options.cwd,
+    moduleType: options.moduleType || 'auto',
+    interop: options.interop || 'default',
   };
 
   const name = options.name === undefined ? 'function-exec-sync' : options.name;
@@ -71,6 +78,12 @@ export default function functionExecSync(options: ExecWorkerOptions | string, fi
 
   // only node
   if (NODES.indexOf(path.basename(execPath).toLowerCase()) < 0) throw new Error(`Expecting node executable. Received: ${path.basename(execPath)}`);
+
+  // Select worker based on target Node:
+  // - Same process (execPath === process.execPath): use ESM worker if current Node supports ESM
+  // - Different Node version: use CJS worker for maximum compatibility (target may be old Node)
+  const isSameNode = execPath === process.execPath;
+  const worker = isSameNode && supportsESM() ? esmWorker : cjsWorker;
 
   // exec and start polling
   if (!cp.execFileSync) {

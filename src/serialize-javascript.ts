@@ -207,7 +207,7 @@ export default function serialize(obj: unknown, options?: SerializeOptions | num
   if (opts.isJSON && !opts.space) {
     str = JSON.stringify(objToSerialize);
   } else {
-    str = JSON.stringify(objToSerialize, opts.isJSON ? null : replacer, opts.space);
+    str = JSON.stringify(objToSerialize, (opts.isJSON ? null : replacer) as unknown as undefined, opts.space);
   }
 
   // Protects against `JSON.stringify()` returning `undefined`, by serializing

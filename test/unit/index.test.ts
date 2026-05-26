@@ -40,8 +40,8 @@ describe('function-exec-sync', () => {
         call({ callbacks: true }, fnPath, 101);
         assert.ok(false);
       } catch (err) {
-        assert.equal(err.message, 'boom');
-        assert.equal(err.custom, true);
+        assert.equal((err as Error).message, 'boom');
+        assert.equal((err as any).custom, true);
       }
     });
 
@@ -69,7 +69,7 @@ describe('function-exec-sync', () => {
         call(fnPath, 101);
         assert.ok(false);
       } catch (err) {
-        assert.equal(err.message, 'boom');
+        assert.equal((err as Error).message, 'boom');
       }
     });
 
@@ -93,7 +93,7 @@ describe('function-exec-sync', () => {
         call(fnPath);
         assert.ok(false);
       } catch (err) {
-        assert.equal(err.message, 'boom');
+        assert.equal((err as Error).message, 'boom');
       }
     });
   });
@@ -135,7 +135,7 @@ describe('function-exec-sync', () => {
     it('return env', () => {
       const fnPath = path.join(DATA, 'returnEnv.cjs');
       const result = call({ env: { hello: 'there' } }, fnPath);
-      assert.equal(result.hello, 'there');
+      assert.equal((result as any).hello, 'there');
     });
 
     it('return name', () => {

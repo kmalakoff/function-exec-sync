@@ -12,7 +12,7 @@ import serialize from './serialize-javascript.ts';
 
 const DEFAULT_SLEEP_MS = 100;
 const NODES = ['node', 'node.exe', 'node.cmd'];
-const isWindows = process.platform === 'win32' || /^(msys|cygwin)$/.test(process.env.OSTYPE);
+const isWindows = process.platform === 'win32' || /^(msys|cygwin)$/.test(process.env.OSTYPE ?? '');
 const __dirname = path.dirname(typeof __filename === 'undefined' ? url.fileURLToPath(import.meta.url) : __filename);
 
 // Worker paths:
@@ -35,17 +35,19 @@ const existsSync = (test: string): boolean => {
 import type { ExecWorkerOptions } from './types.ts';
 
 interface NodeJSEnv extends NodeJS.ProcessEnv {
-  NODE_OPTIONS: string;
+  NODE_OPTIONS?: string;
 }
 
 export type * from './types.ts';
-export default function functionExecSync(filePath: string, ...args: unknown[]);
-export default function functionExecSync(options: ExecWorkerOptions, filePath: string, ...args: unknown[]);
-export default function functionExecSync(options: ExecWorkerOptions | string, filePath?: string | unknown[], ...args: unknown[]): unknown {
+export default function functionExecSync(filePath: string, ...args: unknown[]): unknown;
+export default function functionExecSync(options: ExecWorkerOptions, filePath: string, ...args: unknown[]): unknown;
+export default function functionExecSync(options: ExecWorkerOptions | string, ...rest: unknown[]): unknown {
+  let filePath: string | unknown[] | undefined = rest[0] as string | unknown[] | undefined;
+  const args: unknown[] = rest.slice(1);
   if (typeof options === 'string') {
     args.unshift(filePath);
     filePath = options;
-    options = null;
+    options = {} as ExecWorkerOptions;
   }
   if (!filePath) throw new Error('function-exec-sync missing file');
   options = (options || {}) as ExecWorkerOptions;
@@ -107,13 +109,13 @@ export default function functionExecSync(options: ExecWorkerOptions | string, fi
     res = eval(`(${fs.readFileSync(output, 'utf8')})`);
     unlinkSafe(output);
   } catch (err) {
-    throw new Error(`function-exec-sync: Error: ${err.message}. Function: ${filePath}. Exec path: ${execPath}`);
+    throw new Error(`function-exec-sync: Error: ${(err as Error).message}. Function: ${filePath}. Exec path: ${execPath}`);
   }
 
   // throw error from the worker
   if (res.error) {
     const error = new Error(res.error.message);
-    for (const key in res.error) error[key] = res.error[key];
+    for (const key in res.error) (error as unknown as Record<string, unknown>)[key] = (res.error as unknown as Record<string, unknown>)[key];
     throw error;
   }
   // return the result

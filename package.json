@@ -47,7 +47,6 @@
   },
   "dependencies": {
     "async-compat": "^1.4.6",
-    "mkdirp-classic": "^0.5.2",
     "module-compat": "^0.1.0",
     "os-shim": "^0.1.0",
     "randombytes": "^2.1.0",
@@ -61,7 +60,9 @@
     "@types/node": "*",
     "@types/randombytes": "^2.0.3",
     "@types/short-hash": "^1.0.3",
+    "fs-copy-compat": "^1.0.1",
     "lodash.keys": "^4.2.0",
+    "mkdirp-classic": "^0.5.3",
     "node-version-use": "*",
     "pinkie-promise": "*",
     "ts-dev-stack": "*",
@@ -69,5 +70,11 @@
   },
   "engines": {
     "node": ">=0.8"
+  },
+  "allowScripts": {
+    "node-filename-to-dist-paths": true,
+    "node-semvers": true,
+    "node-version-use": true,
+    "thread-sleep-compat": true
   }
 }

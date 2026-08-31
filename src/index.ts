@@ -7,7 +7,7 @@ import shortHash from 'short-hash';
 import suffix from 'temp-suffix';
 import sleep from 'thread-sleep-compat';
 import url from 'url';
-import { tmpdir } from './compat.ts';
+import { existsSync, tmpdir } from './compat.ts';
 import serialize from './serialize-javascript.ts';
 
 const DEFAULT_SLEEP_MS = 100;
@@ -21,18 +21,8 @@ const __dirname = path.dirname(typeof __filename === 'undefined' ? url.fileURLTo
 const esmWorker = path.join(__dirname, '..', 'esm', 'workers', 'runFunction.mjs');
 const cjsWorker = path.join(__dirname, '..', 'cjs', 'workers', 'runFunction.cjs');
 
-import unlinkSafe from './unlinkSafe.ts';
-
-const existsSync = (test: string): boolean => {
-  try {
-    (fs.accessSync || fs.statSync)(test);
-    return true;
-  } catch (_) {
-    return false;
-  }
-};
-
 import type { ExecWorkerOptions } from './types.ts';
+import unlinkSafe from './unlinkSafe.ts';
 
 interface NodeJSEnv extends NodeJS.ProcessEnv {
   NODE_OPTIONS?: string;

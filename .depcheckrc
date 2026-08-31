@@ -1,1 +1,1 @@
-ignores: ["node-version-use", "ts-dev-stack", "function-exec-sync"]
+ignores: ["function-exec-sync", "node-version-use", "ts-dev-stack", "fs-copy-compat"]

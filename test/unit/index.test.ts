@@ -6,7 +6,7 @@ import { supportsESM } from 'module-compat';
 import path from 'path';
 import Pinkie from 'pinkie-promise';
 import url from 'url';
-import { tmpdir } from '../lib/compat.ts';
+import { copyFileSync, mkdirRecursive, tmpdir } from '../lib/compat.ts';
 
 const __dirname = path.dirname(typeof __filename === 'undefined' ? url.fileURLToPath(import.meta.url) : __filename);
 const DATA = path.join(__dirname, '..', 'data');
@@ -41,7 +41,7 @@ describe('function-exec-sync', () => {
         assert.ok(false);
       } catch (err) {
         assert.equal((err as Error).message, 'boom');
-        assert.equal((err as any).custom, true);
+        assert.equal((err as Error & Record<string, unknown>).custom, true);
       }
     });
 
@@ -105,19 +105,15 @@ describe('function-exec-sync', () => {
       assert.equal(result, path.dirname(__dirname));
     });
 
-    it('works with different execPath (uses CJS worker)', function () {
+    it('works with different execPath (uses CJS worker)', () => {
       // This test ensures CJS worker is used when execPath !== process.execPath
       // We copy the node executable to a temp location to simulate a different execPath
       const tmpDir = path.join(tmpdir(), `node-test-${Date.now()}`);
       const isWindows = process.platform === 'win32';
       const tmpNode = path.join(tmpDir, isWindows ? 'node.exe' : 'node');
-      try {
-        fs.mkdirSync(tmpDir);
-        fs.copyFileSync(process.execPath, tmpNode);
-        if (!isWindows) fs.chmodSync(tmpNode, 0o755);
-      } catch (_e) {
-        return this.skip();
-      }
+      mkdirRecursive(tmpDir);
+      copyFileSync(process.execPath, tmpNode);
+      if (!isWindows) fs.chmodSync(tmpNode, 0o755);
       try {
         const fnPath = path.join(DATA, 'processVersion.cjs');
         const result = call({ execPath: tmpNode }, fnPath) as string;
@@ -135,7 +131,7 @@ describe('function-exec-sync', () => {
     it('return env', () => {
       const fnPath = path.join(DATA, 'returnEnv.cjs');
       const result = call({ env: { hello: 'there' } }, fnPath);
-      assert.equal((result as any).hello, 'there');
+      assert.equal((result as NodeJS.ProcessEnv).hello, 'there');
     });
 
     it('return name', () => {

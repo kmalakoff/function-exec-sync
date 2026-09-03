@@ -1,10 +1,6 @@
-// Patched for backwards compatiblity from: https://github.com/yahoo/serialize-javascript/blob/main/LICENSE
-
-const hasMap = typeof Map !== 'undefined';
-const hasSet = typeof Set !== 'undefined';
-const hasURL = typeof URL !== 'undefined';
-const hasBigInt = typeof BigInt !== 'undefined';
-const isArray = Array.isArray || ((x: unknown) => Object.prototype.toString.call(x) === '[object Array]');
+// Vendored from serialize-javascript 7.1.1, with feature detection so it runs on the >=0.8 floor.
+// Upstream needs Node >=20 only because it generates its UID with crypto.getRandomValues; every
+// other 7.x change is portable, so the UID keeps using randombytes and the rest is carried over.
 
 /*
 Copyright (c) 2014, Yahoo! Inc. All rights reserved.
@@ -13,6 +9,44 @@ See the accompanying LICENSE file for terms.
 */
 
 import randomBytes from 'randombytes';
+
+const hasMap = typeof Map !== 'undefined';
+const hasSet = typeof Set !== 'undefined';
+const hasURL = typeof URL !== 'undefined';
+const hasBigInt = typeof BigInt !== 'undefined';
+const isArray = Array.isArray || ((x: unknown) => Object.prototype.toString.call(x) === '[object Array]');
+
+// Object.assign is missing until Node 4, and only the sparse-array branch needs it
+const assign =
+  Object.assign ||
+  ((target: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> => {
+    const keys = Object.keys(source);
+    for (let i = 0; i < keys.length; i++) target[keys[i]] = source[keys[i]];
+    return target;
+  });
+
+// RegExp.prototype.flags is missing until Node 6; the individual booleans go back to ES3
+function regexpFlags(re: RegExp): string {
+  if (typeof re.flags === 'string') return re.flags;
+  return (re.global ? 'g' : '') + (re.ignoreCase ? 'i' : '') + (re.multiline ? 'm' : '');
+}
+
+// Array.from is missing until Node 4, but Map/Set arrive in 0.12, so entries are collected by hand
+function mapEntries(map: Map<unknown, unknown>): unknown[][] {
+  const out: unknown[][] = [];
+  map.forEach((value, key) => {
+    out.push([key, value]);
+  });
+  return out;
+}
+
+function setValues(set: Set<unknown>): unknown[] {
+  const out: unknown[] = [];
+  set.forEach((value) => {
+    out.push(value);
+  });
+  return out;
+}
 
 // Generate an internal UID to make the regexp pattern harder to guess.
 const UID_LENGTH = 16;
@@ -23,6 +57,9 @@ const IS_NATIVE_CODE_REGEXP = /\{\s*\[native code\]\s*\}/g;
 const IS_PURE_FUNCTION = /function.*?\(/;
 const IS_ARROW_FUNCTION = /.*?=>.*?/;
 const UNSAFE_CHARS_REGEXP = /[<>/\u2028\u2029]/g;
+// Matches a script end tag (case-insensitive) for XSS protection: either a full `</script...>` tag,
+// or a bare `</script` followed by a character the HTML tokenizer treats as ending the tag name.
+const SCRIPT_CLOSE_REGEXP = /<\/script[^>]*>|<\/script(?=[\t\n\f\r /><])/gi;
 
 const RESERVED_SYMBOLS = ['*', 'async'];
 
@@ -38,6 +75,44 @@ const ESCAPED_CHARS: Record<string, string> = {
 
 function escapeUnsafeChars(unsafeChar: string): string {
   return ESCAPED_CHARS[unsafeChar];
+}
+
+// Roughly matches string literals, template literals, regex literals and comments, so a script-close
+// sequence inside one can be escaped differently from one in plain code. A heuristic, not a parser.
+const STRING_OR_COMMENT_REGEXP = /\/\*[\s\S]*?\*\/|\/\/[^\n]*|'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*"|`(?:\\.|[^`\\])*`|\/(?:\\.|\[(?:\\.|[^\]\\\n])*\]|[^/\\\n])+\//g;
+
+// Escape a function body for XSS protection while preserving arrow syntax, comparison operators and
+// regex literals: only script end tags and line terminators are escaped.
+function escapeFunctionBody(str: string): string {
+  const stringAndCommentSpans: number[][] = [];
+  let match: RegExpExecArray | null;
+  STRING_OR_COMMENT_REGEXP.lastIndex = 0;
+  // biome-ignore lint/suspicious/noAssignInExpressions: exec-loop is the documented RegExp idiom
+  while ((match = STRING_OR_COMMENT_REGEXP.exec(str))) {
+    stringAndCommentSpans.push([match.index, match.index + match[0].length]);
+  }
+
+  // Matches and spans are both in increasing offset order, so one forward cursor classifies every
+  // match in O(n) instead of rescanning the spans each time.
+  let spanCursor = 0;
+
+  let out = str.replace(SCRIPT_CLOSE_REGEXP, (scriptCloseMatch: string, offset: number) => {
+    while (spanCursor < stringAndCommentSpans.length && stringAndCommentSpans[spanCursor][1] <= offset) {
+      spanCursor++;
+    }
+    const span = stringAndCommentSpans[spanCursor];
+    const inStringOrComment = !!span && offset >= span[0] && offset < span[1];
+    if (!inStringOrComment) {
+      // In plain code `<` and `/` may be real tokens, so they cannot be rewritten as unicode escapes
+      // without breaking syntax. A space is a no-op that still breaks up the `</script` sequence.
+      return `< ${scriptCloseMatch.slice(1)}`;
+    }
+    // Inside a string/template/regex/comment the characters must survive exactly, so escape instead.
+    return scriptCloseMatch.replace(/</g, '\\u003C').replace(/\//g, '\\u002F').replace(/>/g, '\\u003E');
+  });
+  out = out.replace(/\u2028/g, '\\u2028');
+  out = out.replace(/\u2029/g, '\\u2029');
+  return out;
 }
 
 function generateUID(): string {
@@ -155,10 +230,15 @@ export default function serialize(obj: unknown, options?: SerializeOptions | num
     return value;
   }
 
-  function serializeFunc(fn: (...args: unknown[]) => unknown): string {
-    const serializedFn = fn.toString();
+  function serializeFunc(fn: (...args: unknown[]) => unknown, funcOptions: SerializeOptions): string {
+    let serializedFn = fn.toString();
     if (IS_NATIVE_CODE_REGEXP.test(serializedFn)) {
       throw new TypeError(`Serializing native function: ${fn.name}`);
+    }
+
+    // Escape unsafe HTML characters in function body for XSS protection
+    if (funcOptions && funcOptions.unsafe !== true) {
+      serializedFn = escapeFunctionBody(serializedFn);
     }
 
     // pure functions, example: {key: function() {}}
@@ -239,23 +319,34 @@ export default function serialize(obj: unknown, options?: SerializeOptions | num
     }
 
     if (type === 'D') {
-      return `new Date("${dates[valueIndex].toISOString()}")`;
+      // Validate the ISO string to prevent code injection through a spoofed toISOString()
+      const isoStr = String(dates[valueIndex].toISOString());
+      if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/.test(isoStr)) {
+        throw new TypeError('Invalid Date ISO string');
+      }
+      return `new Date("${isoStr}")`;
     }
 
     if (type === 'R') {
-      return `new RegExp(${serialize(regexps[valueIndex].source)}, "${regexps[valueIndex].flags}")`;
+      // Sanitize flags to prevent code injection (only valid RegExp flag characters survive)
+      const flags = String(regexpFlags(regexps[valueIndex])).replace(/[^gimsuydv]/g, '');
+      const regexpSource = regexps[valueIndex].source;
+      if (typeof regexpSource !== 'string') {
+        throw new TypeError('RegExp.source must be a string');
+      }
+      return `new RegExp(${serialize(regexpSource)}, "${flags}")`;
     }
 
     if (type === 'M') {
-      return `new Map(${serialize(Array.from(maps[valueIndex].entries()), opts)})`;
+      return `new Map(${serialize(mapEntries(maps[valueIndex]), opts)})`;
     }
 
     if (type === 'S') {
-      return `new Set(${serialize(Array.from(sets[valueIndex].values()), opts)})`;
+      return `new Set(${serialize(setValues(sets[valueIndex]), opts)})`;
     }
 
     if (type === 'A') {
-      return `Array.prototype.slice.call(${serialize(Object.assign({ length: arrays[valueIndex].length }, arrays[valueIndex]), opts)})`;
+      return `Array.prototype.slice.call(${serialize(assign({ length: arrays[valueIndex].length }, arrays[valueIndex] as unknown as Record<string, unknown>), opts)})`;
     }
 
     if (type === 'U') {
@@ -271,11 +362,15 @@ export default function serialize(obj: unknown, options?: SerializeOptions | num
     }
 
     if (type === 'L') {
-      return `new URL(${serialize(urls[valueIndex].toString(), opts)})`;
+      const urlStr = urls[valueIndex].toString();
+      if (typeof urlStr !== 'string') {
+        throw new TypeError('URL.toString() must return a string');
+      }
+      return `new URL(${serialize(urlStr, opts)})`;
     }
 
     const fn = functions[valueIndex];
 
-    return serializeFunc(fn);
+    return serializeFunc(fn, opts);
   });
 }

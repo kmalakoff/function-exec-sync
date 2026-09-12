@@ -1,24 +1,37 @@
-## function-exec-sync
+# function-exec-sync
 
-Call a function in a specific version of node for browser and node
+Run an exported function in a Node.js process and return its value.
 
-### Example 1
-
-```typescript
-import call from "function-exec-sync";
-
-const result = call("0.8", "path/to/file.js", "arg1", 2);
-console.log(result); // return value
+```sh
+npm install function-exec-sync
 ```
 
-### Example 2
+Create `worker.cjs`:
 
-```javascript
-var call = require("function-exec-sync"); // old js calling lts js
-
-var result = call("lts", "path/to/file.js", "arg1", 2);
-console.log(result); // return value
+```js
+module.exports = function (name, count) {
+  return Array(count + 1).join(name);
+};
 ```
+
+Call it from another CommonJS file:
+
+```js
+var path = require('path');
+var call = require('function-exec-sync');
+
+var result = call(path.join(__dirname, 'worker.cjs'), 'ha', 2);
+console.log(result); // "haha"
+```
+
+Pass `execPath` in an options object to select a Node executable:
+
+```js
+var result = call({ execPath: '/path/to/node' }, path.join(__dirname, 'worker.cjs'), 'ha', 2);
+```
+
+The target module, arguments, and returned value cross a process boundary, so
+keep them serializable by this package. Circular values are not supported.
 
 ### Documentation
 

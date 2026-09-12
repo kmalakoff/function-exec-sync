@@ -1,11 +1,9 @@
 import assert from 'assert';
-import Pinkie from 'pinkie-promise';
-
 // @ts-ignore
 import call from 'function-exec-sync';
 import keys from 'lodash.keys';
-
 import path from 'path';
+import Pinkie from 'pinkie-promise';
 import url from 'url';
 
 const __dirname = path.dirname(typeof __filename === 'undefined' ? url.fileURLToPath(import.meta.url) : __filename);

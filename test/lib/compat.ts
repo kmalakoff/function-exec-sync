@@ -19,7 +19,10 @@ export function tmpdir(): string {
  */
 const hasRecursiveMkdir = +process.versions.node.split('.')[0] >= 10;
 export function mkdirRecursive(dir: string): void {
-  if (hasRecursiveMkdir) fs.mkdirSync(dir, { recursive: true }) as undefined as undefined;
+  if (hasRecursiveMkdir) {
+    fs.mkdirSync(dir, { recursive: true });
+    return;
+  }
   const mkdirp = _require('mkdirp-classic');
   mkdirp.sync(dir);
 }

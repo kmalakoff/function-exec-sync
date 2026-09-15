@@ -47,6 +47,7 @@
   },
   "dependencies": {
     "async-compat": "^1.4.6",
+    "mkdirp-classic": "^0.5.3",
     "module-compat": "^0.1.0",
     "os-shim": "^0.1.0",
     "randombytes": "^2.1.0",
@@ -62,7 +63,6 @@
     "@types/short-hash": "^1.0.3",
     "fs-copy-compat": "^1.0.1",
     "lodash.keys": "^4.2.0",
-    "mkdirp-classic": "^0.5.3",
     "node-version-use": "*",
     "pinkie-promise": "*",
     "ts-dev-stack": "*",

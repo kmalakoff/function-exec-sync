@@ -25,11 +25,13 @@ interface WorkerData {
 
 interface ResultValue {
   value?: unknown;
-  error?: {
-    message: string;
-    stack?: string;
-    [key: string]: unknown;
-  };
+  error?:
+    | Error
+    | {
+        message: string;
+        stack?: string;
+        [key: string]: unknown;
+      };
 }
 
 function writeResult(result: ResultValue): void {
@@ -38,7 +40,11 @@ function writeResult(result: ResultValue): void {
   });
 }
 
-function writeError(error: Error & Record<string, unknown>): void {
+function writeError(error: NonNullable<ResultValue['error']>): void {
+  if (error instanceof Error) {
+    writeResult({ error });
+    return;
+  }
   const errorObj: ResultValue['error'] = { message: error.message, stack: error.stack };
   for (const key in error) errorObj[key] = error[key];
   writeResult({ error: errorObj });

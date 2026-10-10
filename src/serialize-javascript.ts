@@ -1,3 +1,5 @@
+/// <reference lib="es2021.promise" />
+/// <reference lib="es2022.error" />
 // Vendored from serialize-javascript 7.1.1, with feature detection so it runs on the >=0.8 floor.
 // Upstream needs Node >=20 only because it generates its UID with crypto.getRandomValues; every
 // other 7.x change is portable, so the UID keeps using randombytes and the rest is carried over.
@@ -51,7 +53,7 @@ function setValues(set: Set<unknown>): unknown[] {
 // Generate an internal UID to make the regexp pattern harder to guess.
 const UID_LENGTH = 16;
 const UID = generateUID();
-const PLACE_HOLDER_REGEXP = new RegExp(`(\\\\)?"@__(F|R|D|M|S|A|U|I|B|L)-${UID}-(\\d+)__@"`, 'g');
+const PLACE_HOLDER_REGEXP = new RegExp(`(\\\\)?"@__(F|R|D|M|S|A|U|I|B|L|E)-${UID}-(\\d+)__@"`, 'g');
 
 const IS_NATIVE_CODE_REGEXP = /\{\s*\[native code\]\s*\}/g;
 const IS_PURE_FUNCTION = /function.*?\(/;
@@ -144,6 +146,10 @@ interface SerializeOptions {
 }
 
 export default function serialize(obj: unknown, options?: SerializeOptions | number | string): string {
+  return serializeValue(obj, options, []);
+}
+
+function serializeValue(obj: unknown, options: SerializeOptions | number | string | undefined, errorAncestors: Error[]): string {
   let opts: SerializeOptions = {};
   if (options) {
     // Backwards-compatibility for `space` as the second argument.
@@ -164,6 +170,7 @@ export default function serialize(obj: unknown, options?: SerializeOptions | num
   const infinities: number[] = [];
   const bigInts: bigint[] = [];
   const urls: URL[] = [];
+  const errors: Error[] = [];
 
   // Returns placeholders for functions and regexps (identified by index)
   // which are later replaced by their string representation.
@@ -183,6 +190,11 @@ export default function serialize(obj: unknown, options?: SerializeOptions | num
     const type = typeof origValue;
 
     if (type === 'object') {
+      if (origValue instanceof Error) {
+        if (errorAncestors.indexOf(origValue) !== -1) throw new TypeError('Converting circular structure to JSON');
+        return `@__E-${UID}-${errors.push(origValue) - 1}__@`;
+      }
+
       if (origValue instanceof RegExp) {
         return `@__R-${UID}-${regexps.push(origValue) - 1}__@`;
       }
@@ -303,7 +315,7 @@ export default function serialize(obj: unknown, options?: SerializeOptions | num
     str = str.replace(UNSAFE_CHARS_REGEXP, escapeUnsafeChars);
   }
 
-  if (functions.length === 0 && regexps.length === 0 && dates.length === 0 && maps.length === 0 && sets.length === 0 && arrays.length === 0 && undefs.length === 0 && infinities.length === 0 && bigInts.length === 0 && urls.length === 0) {
+  if (functions.length === 0 && regexps.length === 0 && dates.length === 0 && maps.length === 0 && sets.length === 0 && arrays.length === 0 && undefs.length === 0 && infinities.length === 0 && bigInts.length === 0 && urls.length === 0 && errors.length === 0) {
     return str;
   }
 
@@ -316,6 +328,25 @@ export default function serialize(obj: unknown, options?: SerializeOptions | num
     // invalid JS.
     if (backSlash) {
       return match;
+    }
+
+    if (type === 'E') {
+      const error = errors[valueIndex];
+      const keys = ['name', 'message', 'stack'];
+      ['cause', 'errors'].forEach((key) => {
+        if (Object.getOwnPropertyDescriptor(error, key)) keys.push(key);
+      });
+      Object.keys(error).forEach((key) => {
+        if (keys.indexOf(key) === -1) keys.push(key);
+      });
+      const fields = keys.map((key) => {
+        const descriptor = Object.getOwnPropertyDescriptor(error, key);
+        const value = descriptor && 'value' in descriptor ? descriptor.value : (error as unknown as Record<string, unknown>)[key];
+        return [key, value, descriptor ? descriptor.enumerable : false];
+      });
+      const aggregate = (typeof AggregateError === 'function' && error instanceof AggregateError) || (error.name === 'AggregateError' && Object.getOwnPropertyDescriptor(error, 'errors') !== undefined);
+      const data = serializeValue(fields, opts, errorAncestors.concat(error));
+      return `(function(p){var e=${aggregate ? 'typeof AggregateError==="function"?new AggregateError([],p[1][1]):new Error(p[1][1])' : 'new Error(p[1][1])'};delete e.errors;for(var i=0;i<p.length;i++)Object.defineProperty(e,p[i][0],{value:p[i][1],writable:true,configurable:true,enumerable:p[i][2]});return e;})(${data})`;
     }
 
     if (type === 'D') {
@@ -334,19 +365,19 @@ export default function serialize(obj: unknown, options?: SerializeOptions | num
       if (typeof regexpSource !== 'string') {
         throw new TypeError('RegExp.source must be a string');
       }
-      return `new RegExp(${serialize(regexpSource)}, "${flags}")`;
+      return `new RegExp(${serializeValue(regexpSource, undefined, errorAncestors)}, "${flags}")`;
     }
 
     if (type === 'M') {
-      return `new Map(${serialize(mapEntries(maps[valueIndex]), opts)})`;
+      return `new Map(${serializeValue(mapEntries(maps[valueIndex]), opts, errorAncestors)})`;
     }
 
     if (type === 'S') {
-      return `new Set(${serialize(setValues(sets[valueIndex]), opts)})`;
+      return `new Set(${serializeValue(setValues(sets[valueIndex]), opts, errorAncestors)})`;
     }
 
     if (type === 'A') {
-      return `Array.prototype.slice.call(${serialize(assign({ length: arrays[valueIndex].length }, arrays[valueIndex] as unknown as Record<string, unknown>), opts)})`;
+      return `Array.prototype.slice.call(${serializeValue(assign({ length: arrays[valueIndex].length }, arrays[valueIndex] as unknown as Record<string, unknown>), opts, errorAncestors)})`;
     }
 
     if (type === 'U') {
@@ -366,7 +397,7 @@ export default function serialize(obj: unknown, options?: SerializeOptions | num
       if (typeof urlStr !== 'string') {
         throw new TypeError('URL.toString() must return a string');
       }
-      return `new URL(${serialize(urlStr, opts)})`;
+      return `new URL(${serializeValue(urlStr, opts, errorAncestors)})`;
     }
 
     const fn = functions[valueIndex];

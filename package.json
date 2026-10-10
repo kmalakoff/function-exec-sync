@@ -9,13 +9,13 @@
     "execPath",
     "typescript"
   ],
-  "homepage": "https://github.com/function-exec-sync#README.md",
+  "homepage": "https://github.com/kmalakoff/function-exec-sync#readme",
   "bugs": {
-    "url": "https://github.com/function-exec-sync/issues"
+    "url": "https://github.com/kmalakoff/function-exec-sync/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/function-exec-sync.git"
+    "url": "git+ssh://git@github.com/kmalakoff/function-exec-sync.git"
   },
   "license": "MIT",
   "author": {

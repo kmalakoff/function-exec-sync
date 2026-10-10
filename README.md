@@ -33,6 +33,13 @@ var result = call({ execPath: '/path/to/node' }, path.join(__dirname, 'worker.cj
 The target module, arguments, and returned value cross a process boundary, so
 keep them serializable by this package. Circular values are not supported.
 
+Error values retain their names, messages, stacks, enumerable diagnostic fields,
+and own `cause` and `errors` fields. AggregateError values use the receiving
+runtime's native constructor when available. Older Node versions receive a local
+Error retaining the aggregate data. Other Error subclass prototypes are not preserved.
+A directly returned Error is treated as a failure; return an ordinary container
+such as `{ error: error }` to include an Error in a successful result.
+
 ### Documentation
 
 [API Docs](https://kmalakoff.github.io/function-exec-sync/)

@@ -93,7 +93,7 @@ export default function functionExecSync(options: ExecWorkerOptions | string, ..
   unlinkSafe(done);
 
   // get data and clean up
-  let res: { error?: Error; value: unknown };
+  let res: { error?: Error | { message: string; [key: string]: unknown }; value: unknown };
   try {
     // biome-ignore lint/security/noGlobalEval: Serialize
     res = eval(`(${fs.readFileSync(output, 'utf8')})`);
@@ -104,6 +104,7 @@ export default function functionExecSync(options: ExecWorkerOptions | string, ..
 
   // throw error from the worker
   if (res.error) {
+    if (res.error instanceof Error) throw res.error;
     const error = new Error(res.error.message);
     for (const key in res.error) (error as unknown as Record<string, unknown>)[key] = (res.error as unknown as Record<string, unknown>)[key];
     throw error;

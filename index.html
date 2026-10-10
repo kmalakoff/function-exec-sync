@@ -27,6 +27,12 @@
 
 <p>The target module, arguments, and returned value cross a process boundary, so
 keep them serializable by this package. Circular values are not supported.</p>
+<p>Error values retain their names, messages, stacks, enumerable diagnostic fields,
+and own <code>cause</code> and <code>errors</code> fields. AggregateError values use the receiving
+runtime's native constructor when available. Older Node versions receive a local
+Error retaining the aggregate data. Other Error subclass prototypes are not preserved.
+A directly returned Error is treated as a failure; return an ordinary container
+such as <code>{ error: error }</code> to include an Error in a successful result.</p>
 <h3 id="documentation" class="tsd-anchor-link">Documentation<a href="#documentation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <p><a href="https://kmalakoff.github.io/function-exec-sync/">API Docs</a></p>
 </div></div>

@@ -3,7 +3,6 @@ import fs from 'fs';
 import mkdirp from 'mkdirp-classic';
 import { supportsESM } from 'module-compat';
 import path from 'path';
-import shortHash from 'short-hash';
 import suffix from 'temp-suffix';
 import sleep from 'thread-sleep-compat';
 import url from 'url';
@@ -55,7 +54,7 @@ export default function functionExecSync(options: ExecWorkerOptions | string, ..
   };
 
   const name = options.name === undefined ? 'function-exec-sync' : options.name;
-  const temp = path.join(tmpdir(), name, shortHash(workerData.cwd));
+  const temp = path.join(tmpdir(), name);
   const input = path.join(temp, suffix('input'));
   const output = path.join(temp, suffix('output'));
   const done = path.join(temp, suffix('done'));

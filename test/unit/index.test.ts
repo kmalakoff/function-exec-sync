@@ -107,13 +107,15 @@ describe('function-exec-sync', () => {
 
     it('works with different execPath (uses CJS worker)', () => {
       // This test ensures CJS worker is used when execPath !== process.execPath
-      // We copy the node executable to a temp location to simulate a different execPath
+      // A second path to the same node executable simulates a different execPath. On POSIX it is a
+      // symlink: a copied binary cannot load a dynamically linked libnode (Homebrew's node), while a
+      // symlink keeps the original location for the loader. Windows symlinks need privileges, so copy.
       const tmpDir = path.join(tmpdir(), `node-test-${Date.now()}`);
       const isWindows = process.platform === 'win32';
       const tmpNode = path.join(tmpDir, isWindows ? 'node.exe' : 'node');
       mkdirRecursive(tmpDir);
-      copyFileSync(process.execPath, tmpNode);
-      if (!isWindows) fs.chmodSync(tmpNode, 0o755);
+      if (isWindows) copyFileSync(process.execPath, tmpNode);
+      else fs.symlinkSync(process.execPath, tmpNode);
       try {
         const fnPath = path.join(DATA, 'processVersion.cjs');
         const result = call({ execPath: tmpNode }, fnPath) as string;

@@ -17,7 +17,9 @@ export function tmpdir(): string {
  * Create a directory recursively.
  * Uses native fs.mkdirSync({recursive}) on Node 10.12+, falls back to mkdirp-classic.
  */
-const hasRecursiveMkdir = +process.versions.node.split('.')[0] >= 10;
+// Native fs.mkdirSync({ recursive }) from Node 10.12, mkdirp-classic below
+const nodeVersion = process.versions.node.split('.');
+const hasRecursiveMkdir = +nodeVersion[0] > 10 || (+nodeVersion[0] === 10 && +nodeVersion[1] >= 12);
 export function mkdirRecursive(dir: string): void {
   if (hasRecursiveMkdir) return fs.mkdirSync(dir, { recursive: true }) as void;
   const mkdirp = _require('mkdirp-classic');
